@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="9C7-S8-4hL">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="oa4-6p-gdk">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
@@ -78,7 +78,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MOw-on-1V8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="767" y="885"/>
+            <point key="canvasLocation" x="5048" y="970"/>
         </scene>
         <!--Login View Controller-->
         <scene sceneID="KJx-LF-2Tb">
@@ -150,6 +150,7 @@
                                 </buttonConfiguration>
                                 <connections>
                                     <action selector="loginPressed:" destination="6dh-l3-CGy" eventType="touchUpInside" id="IlN-es-Lql"/>
+                                    <segue destination="3ac-Yx-oJC" kind="presentation" modalPresentationStyle="fullScreen" id="353-fg-6HV"/>
                                 </connections>
                             </button>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="Screenshot 2025-10-21 at 6.05.04 PM" translatesAutoresizingMaskIntoConstraints="NO" id="K1C-3c-FMK">
@@ -253,6 +254,7 @@
                                 </buttonConfiguration>
                                 <connections>
                                     <action selector="registerPressed:" destination="VGC-UA-Voa" eventType="touchUpInside" id="tfA-Ft-rru"/>
+                                    <segue destination="6Kh-pG-Gg6" kind="presentation" identifier="toPreferenceSI" modalPresentationStyle="fullScreen" id="aLG-oK-MAW"/>
                                 </connections>
                             </button>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="Welcome" translatesAutoresizingMaskIntoConstraints="NO" id="aEy-6K-pSB">
@@ -694,7 +696,7 @@
         <!--App Tab Bar Controller-->
         <scene sceneID="LOr-UT-CqE">
             <objects>
-                <viewController storyboardIdentifier="MainViewController" id="3ac-Yx-oJC" customClass="AppTabBarController" customModule="FavoritesView" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="MainViewController" id="3ac-Yx-oJC" customClass="AppTabBarController" customModule="DinnAR" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="lBF-nf-X2j">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -704,7 +706,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="jSE-Yp-aPP" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="6251" y="131"/>
+            <point key="canvasLocation" x="2750" y="971"/>
         </scene>
         <!--Home View Controller-->
         <scene sceneID="WkC-fQ-ZVE">
@@ -863,7 +865,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0s1-m3-zwv" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="6250" y="885"/>
+            <point key="canvasLocation" x="3587" y="970"/>
         </scene>
         <!--Restaurant Info View Controller-->
         <scene sceneID="Sas-Ma-Gw4">
@@ -973,12 +975,14 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FnI-p4-V98" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="6978" y="885"/>
+            <point key="canvasLocation" x="4315" y="970"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
+        <segue reference="pYu-ll-lXB"/>
+        <segue reference="353-fg-6HV"/>
         <segue reference="7Mt-S6-RLh"/>
-        <segue reference="zXG-jN-EaD"/>
+        <segue reference="ohV-Sr-Nqe"/>
         <segue reference="sgT-Aq-O96"/>
     </inferredMetricsTieBreakers>
     <resources>

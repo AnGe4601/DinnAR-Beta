@@ -57,7 +57,7 @@ class RegisterViewController: UIViewController {
                   }
                   
         self.showAlert(message: "Registration successful!")
-        self.performSegue(withIdentifier: "ViewController", sender: self )
+        //self.performSegue(withIdentifier: "ViewController", sender: self)
             }
           }
         func showAlert(message: String) {
