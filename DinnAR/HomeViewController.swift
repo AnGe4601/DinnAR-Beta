@@ -14,7 +14,7 @@ struct Restaurant {
     let imageName: String
 }
 
-class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
     
     // search bar
     @IBOutlet weak var searchBar: UISearchBar!
@@ -24,33 +24,74 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     // near you label
     @IBOutlet weak var nearYouLabel: UILabel!
-    
-    // first nearby restaurant and distance label
-    @IBOutlet weak var nearRestaurantLabel1: UILabel!
-    @IBOutlet weak var distanceLabel1: UILabel!
-    
-    // second nearby restaurant and distance label
-    @IBOutlet weak var nearRestaurantLabel2: UILabel!
-    @IBOutlet weak var distanceLabel2: UILabel!
-    
+
     // recommended restaurants table view
     @IBOutlet weak var tableView: UITableView!
     
     
-    // example data inputs
-    let recommendations: [Restaurant] = [
-        Restaurant(name: "Aba - Austin", cuisine: "Mediterranean • South Congress", stars: "⭐️⭐️⭐️⭐️⭐️", imageName: "aba"),
-        Restaurant(name: "Red Ash Italia", cuisine: "Italian • Downtown", stars: "⭐️⭐️⭐️⭐️⭐️", imageName: "redash"),
-        Restaurant(name: "De Nada Cantina", cuisine: "Mexican • East Austin", stars: "⭐️⭐️⭐️⭐️", imageName: "denada")
-    ]
+    var recommendations: [Restaurant] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.dataSource = self
         tableView.delegate = self
+        searchBar.delegate = self
         tableView.rowHeight = 120
+        
+        fetchRestaurants(query: "restaurants in austin")
     }
 
+    // MARK: - SerpAPI Integration
+    func fetchRestaurants(query: String) {
+        let apiKey = "8490c18ba14dfd0fed86362051447ef3606cc22f51972eb4ea3fa8be858356fd"
+        let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
+                let urlString = "https://serpapi.com/search.json?engine=google_maps&q=\(encodedQuery)&type=search&api_key=\(apiKey)"
+                
+                guard let url = URL(string: urlString) else { return }
+                
+                print("Fetching from: \(urlString)")
+                
+                URLSession.shared.dataTask(with: url) { data, response, error in
+                    if let error = error {
+                        print("Error fetching data: \(error)")
+                        return
+                    }
+                    
+                    guard let data = data else { return }
+                    do {
+                        // Decode the JSON
+                        if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                           let results = json["local_results"] as? [[String: Any]] {
+                            
+                            var fetchedRestaurants: [Restaurant] = []
+                            for item in results.prefix(5) { // limit to 5 for now
+                                let name = item["title"] as? String ?? "Unknown"
+                                let cuisine = item["type"] as? String ?? "Restaurant"
+                                let rating = item["rating"] as? Double ?? 0.0
+                                let stars = String(repeating: "⭐️", count: Int(rating.rounded()))
+                                
+                                fetchedRestaurants.append(Restaurant(name: name, cuisine: cuisine, stars: stars, imageName: "placeholder"))
+                            }
+                            
+                            DispatchQueue.main.async {
+                                self.recommendations = fetchedRestaurants
+                                self.tableView.reloadData()
+                            }
+                        }
+                    } catch {
+                        print("Failed to decode JSON: \(error)")
+                    }
+                }.resume()
+    }
+    
+    // MARK: - Search Function
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let searchText = searchBar.text, !searchText.isEmpty else {return}
+        fetchRestaurants(query: searchText)
+        searchBar.resignFirstResponder()
+    }
+    
+    // MARK: - TableView
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return recommendations.count
     }

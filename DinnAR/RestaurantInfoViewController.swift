@@ -23,7 +23,7 @@ class RestaurantInfoViewController: UIViewController {
     
     @IBOutlet weak var restaurantImageView: UIImageView!
     
-    // hamburger menu - yet to implement
+    // hamburger menu - need to rename (back button)
     @IBAction func hamburgerMenu(_ sender: Any) {
     }
     
