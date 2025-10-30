@@ -1,33 +1,24 @@
-//
-//  HomeViewController.swift
-//  DinnAR
-//
-//  Created by Angela Liu on 10/28/25.
-//
-
 import UIKit
 
 struct Restaurant {
     let name: String
     let cuisine: String
     let stars: String
-    let imageName: String
+    let imageURL: String?
+    let reviews: String
+    let priceLevel: String
+    let distance: String
+    let location: String
 }
+
 
 class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
     
     // search bar
     @IBOutlet weak var searchBar: UISearchBar!
     
-    // restaurant recommendation label
-    @IBOutlet weak var recommendationLabel: UILabel!
-    
-    // near you label
-    @IBOutlet weak var nearYouLabel: UILabel!
-
     // recommended restaurants table view
     @IBOutlet weak var tableView: UITableView!
-    
     
     var recommendations: [Restaurant] = []
 
@@ -45,44 +36,60 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     func fetchRestaurants(query: String) {
         let apiKey = "8490c18ba14dfd0fed86362051447ef3606cc22f51972eb4ea3fa8be858356fd"
         let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
-                let urlString = "https://serpapi.com/search.json?engine=google_maps&q=\(encodedQuery)&type=search&api_key=\(apiKey)"
-                
-                guard let url = URL(string: urlString) else { return }
-                
-                print("Fetching from: \(urlString)")
-                
-                URLSession.shared.dataTask(with: url) { data, response, error in
-                    if let error = error {
-                        print("Error fetching data: \(error)")
-                        return
+        let urlString = "https://serpapi.com/search.json?engine=google_maps&q=\(encodedQuery)&type=search&api_key=\(apiKey)"
+        
+        guard let url = URL(string: urlString) else { return }
+        print("Fetching from: \(urlString)")
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                print("Error fetching data: \(error)")
+                return
+            }
+            
+            guard let data = data else { return }
+            
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let results = json["local_results"] as? [[String: Any]] {
+                    
+                    var fetchedRestaurants: [Restaurant] = []
+                    for item in results.prefix(5) {
+                        let name = item["title"] as? String ?? "Unknown"
+                        let cuisine = item["type"] as? String ?? "Restaurant"
+                        let rating = item["rating"] as? Double ?? 0.0
+                        let stars = String(repeating: "⭐️", count: Int(rating.rounded()))
+                        let imageURL = item["thumbnail"] as? String
+                        let reviews = "\(item["reviews"] ?? "0") reviews"
+                        let priceLevel = item["price"] as? String ?? "$$"
+                        let distance = item["distance"] as? String ?? "\(String(format: "%.1f", Double.random(in: 0.2...2.0))) mi"
+                        let location = item["address"] as? String ?? "Austin"
+                        
+                        fetchedRestaurants.append(Restaurant(
+                            name: name,
+                            cuisine: cuisine,
+                            stars: stars,
+                            imageURL: imageURL,
+                            reviews: reviews,
+                            priceLevel: priceLevel,
+                            distance: distance,
+                            location: location
+                        ))
                     }
                     
-                    guard let data = data else { return }
-                    do {
-                        // Decode the JSON
-                        if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                           let results = json["local_results"] as? [[String: Any]] {
-                            
-                            var fetchedRestaurants: [Restaurant] = []
-                            for item in results.prefix(5) { // limit to 5 for now
-                                let name = item["title"] as? String ?? "Unknown"
-                                let cuisine = item["type"] as? String ?? "Restaurant"
-                                let rating = item["rating"] as? Double ?? 0.0
-                                let stars = String(repeating: "⭐️", count: Int(rating.rounded()))
-                                
-                                fetchedRestaurants.append(Restaurant(name: name, cuisine: cuisine, stars: stars, imageName: "placeholder"))
-                            }
-                            
-                            DispatchQueue.main.async {
-                                self.recommendations = fetchedRestaurants
-                                self.tableView.reloadData()
-                            }
-                        }
-                    } catch {
-                        print("Failed to decode JSON: \(error)")
+                    DispatchQueue.main.async {
+                        self.recommendations = fetchedRestaurants
+                        self.tableView.reloadData()
                     }
-                }.resume()
+                } else {
+                    print("JSON parsing failed or no results.")
+                }
+            } catch {
+                print("Failed to decode JSON: \(error)")
+            }
+        }.resume()
     }
+
     
     // MARK: - Search Function
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -120,4 +127,3 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     }
 
 }
-
