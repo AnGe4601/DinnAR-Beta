@@ -18,6 +18,8 @@ class RegisterViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        (pwdField.isSecureTextEntry, confirmPwdTextField.isSecureTextEntry) = (true,true)
+
     }
     @IBAction func registerPressed(_ sender: Any) {
         guard let fullName = fullNameTextField.text, !fullName.isEmpty else {
@@ -56,7 +58,7 @@ class RegisterViewController: UIViewController {
                 return
                   }
                   
-        self.showAlert(message: "Registration successful!")
+            self.performSegue(withIdentifier: "toPref", sender: self)
         //self.performSegue(withIdentifier: "ViewController", sender: self)
             }
           }

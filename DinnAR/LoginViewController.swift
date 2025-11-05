@@ -11,6 +11,8 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var emailField: UITextField!
     override func viewDidLoad() {
         super.viewDidLoad()
+        pwdField.isSecureTextEntry = true
+
     }
     
     @IBAction func signupPressed(_ sender: Any) {
@@ -33,8 +35,7 @@ class LoginViewController: UIViewController {
                 return
                     }
 
-        self.showAlert(message: "Login Successful!")
-                }
+            self.performSegue(withIdentifier: "toHome", sender: self)                }
             }
 
         func showAlert(message: String) {
