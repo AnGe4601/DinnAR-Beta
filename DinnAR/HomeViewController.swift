@@ -1,16 +1,28 @@
 import UIKit
 
 struct Restaurant {
-    let name: String
-    let cuisine: String
-    let stars: String
-    let imageURL: String?
-    let reviews: String
-    let priceLevel: String
-    let distance: String
-    let location: String
-}
+    var name: String
+    var cuisine: String
+    var stars: String
+    var imageURL: String?
+    var reviews: String
+    var priceLevel: String
+    var distance: String
+    var location: String
 
+    // Google data
+    var description: String?
+    var rating: String?
+    var weeklyHours: String?
+    var website: String?
+    var address: String?
+
+    // Yelp details (for RestaurantInfoVC)
+    var yelpID: String?
+    var yelpReviews: [String]?
+    var yelpMenu: [String]?
+    var yelpWaitTime: String?
+}
 
 class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
     
@@ -34,24 +46,53 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
     // MARK: - SerpAPI Integration
     func fetchRestaurants(query: String) {
-        let apiKey = "8490c18ba14dfd0fed86362051447ef3606cc22f51972eb4ea3fa8be858356fd"
-        let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
-        let urlString = "https://serpapi.com/search.json?engine=google_maps&q=\(encodedQuery)&type=search&api_key=\(apiKey)"
+        let apiKey = "dd319a412e42c0260813f3ed7c1a72666c0de0f9d1b0197b7ae8fa39f08a6e40"
+        let fullQuery = "\(query) in Austin, TX"
+        let encodedQuery = fullQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? fullQuery
+        let urlString = "https://serpapi.com/search.json?engine=google_local&q=\(encodedQuery)&api_key=\(apiKey)"
         
         guard let url = URL(string: urlString) else { return }
         print("Fetching from: \(urlString)")
         
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let error = error {
-                print("Error fetching data: \(error)")
+                print("AHH Error fetching data: \(error)")
                 return
             }
             
-            guard let data = data else { return }
+            guard let data = data else {
+                print("AHH No data received.")
+                return
+            }
             
             do {
-                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                   let results = json["local_results"] as? [[String: Any]] {
+                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    if let errorMessage = json["error"] as? String {
+                        print("SerpAPI Error: \(errorMessage)")
+                    }
+                    
+                    var results: [[String: Any]] = []
+                    
+                    // Updated SerpAPI path for google_local results
+                    if let localResults = json["local_results"] as? [[String: Any]] {
+                        results = localResults
+                    } else if let mapResults = json["local_map_results"] as? [[String: Any]] {
+                        results = mapResults
+                    }
+                    
+                    guard !results.isEmpty else {
+                        print("Oops no live results found — using demo data.")
+                        let demoRestaurants = [
+                            Restaurant(name: "Debug Placeholder Café", cuisine: "Italian", stars: "⭐️⭐️⭐️⭐️", imageURL: nil, reviews: "120 reviews", priceLevel: "$$", distance: "0.5 mi", location: "Austin"),
+                            Restaurant(name: "Taco Haven", cuisine: "Mexican", stars: "⭐️⭐️⭐️⭐️⭐️", imageURL: nil, reviews: "230 reviews", priceLevel: "$", distance: "1.1 mi", location: "Austin"),
+                            Restaurant(name: "Coffee Verde", cuisine: "Vegan", stars: "⭐️⭐️⭐️⭐️", imageURL: nil, reviews: "89 reviews", priceLevel: "$$", distance: "0.8 mi", location: "Austin")
+                        ]
+                        DispatchQueue.main.async {
+                            self.recommendations = demoRestaurants
+                            self.tableView.reloadData()
+                        }
+                        return
+                    }
                     
                     var fetchedRestaurants: [Restaurant] = []
                     for item in results.prefix(5) {
@@ -82,15 +123,14 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                         self.tableView.reloadData()
                     }
                 } else {
-                    print("JSON parsing failed or no results.")
+                    print("AHH JSON parsing failed or no results.")
                 }
             } catch {
-                print("Failed to decode JSON: \(error)")
+                print("AHH Failed to decode JSON: \(error)")
             }
         }.resume()
     }
 
-    
     // MARK: - Search Function
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let searchText = searchBar.text, !searchText.isEmpty else {return}
