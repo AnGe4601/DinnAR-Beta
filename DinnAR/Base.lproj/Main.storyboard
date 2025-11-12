@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="oa4-6p-gdk">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24127" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="oa4-6p-gdk">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -36,9 +36,12 @@
                                 <buttonConfiguration key="configuration" style="plain" title="Edit">
                                     <color key="baseForegroundColor" systemColor="labelColor"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <segue destination="6Kh-pG-Gg6" kind="show" id="3I2-vN-3nT"/>
+                                </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Personal Information" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fSE-4d-W76">
-                                <rect key="frame" x="40" y="394" width="157" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Change Preferences" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fSE-4d-W76">
+                                <rect key="frame" x="40" y="394" width="155" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
@@ -76,6 +79,9 @@
                                 <buttonConfiguration key="configuration" style="plain" title="Logout">
                                     <color key="baseForegroundColor" systemColor="labelColor"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <segue destination="6dh-l3-CGy" kind="show" id="yuH-Bk-12U"/>
+                                </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="TM8-3y-ffE"/>
@@ -83,6 +89,11 @@
                         <rect key="contentStretch" x="0.0" y="0.0" width="0.94999999999999996" height="1"/>
                     </view>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="contactSwitch" destination="k9a-AK-vkF" id="KgZ-RF-5W8"/>
+                        <outlet property="locSwitch" destination="IJb-Jf-BaU" id="XmE-LZ-Fi7"/>
+                        <outlet property="nameLabel" destination="VXN-Q1-Gg8" id="dfp-GT-poZ"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MOw-on-1V8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -91,7 +102,7 @@
         <!--Login View Controller-->
         <scene sceneID="KJx-LF-2Tb">
             <objects>
-                <viewController id="6dh-l3-CGy" customClass="LoginViewController" customModule="DinnAR" sceneMemberID="viewController">
+                <viewController modalPresentationStyle="fullScreen" id="6dh-l3-CGy" customClass="LoginViewController" customModule="DinnAR" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="NJu-Id-AQL">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -159,6 +170,9 @@
                                 <buttonConfiguration key="configuration" style="plain" title="Forgot Password?">
                                     <color key="baseForegroundColor" red="0.67476892470000005" green="0.2618022263" blue="0.1097123399" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="forgotpwd:" destination="6dh-l3-CGy" eventType="touchUpInside" id="eEb-Fb-BQe"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mGG-ct-DTf">
                                 <rect key="frame" x="135" y="611" width="122" height="42"/>
@@ -178,8 +192,8 @@
                     </view>
                     <navigationItem key="navigationItem" id="X5T-og-vGv"/>
                     <connections>
-                        <outlet property="emailField" destination="jlx-DV-8Hy" id="kJH-NU-nW0"/>
-                        <outlet property="pwdField" destination="56G-eH-eZR" id="z3M-XL-oAN"/>
+                        <outlet property="emailField" destination="jlx-DV-8Hy" id="K4n-0I-wpX"/>
+                        <outlet property="pwdField" destination="56G-eH-eZR" id="eQm-yc-Ev3"/>
                         <segue destination="k9R-jK-a34" kind="show" identifier="toHome" id="RXW-v1-jK0"/>
                     </connections>
                 </viewController>
@@ -300,7 +314,7 @@
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="oa4-6p-gdk" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="meG-eM-TQw">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
+                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -315,7 +329,7 @@
         <!--View Controller-->
         <scene sceneID="D6W-eF-qXl">
             <objects>
-                <viewController id="6Kh-pG-Gg6" customClass="ViewController" customModule="DinnAR" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController modalPresentationStyle="fullScreen" id="6Kh-pG-Gg6" customClass="ViewController" customModule="DinnAR" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="E8Z-MF-1tV">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -879,6 +893,8 @@
         <segue reference="7Mt-S6-RLh"/>
         <segue reference="ohV-Sr-Nqe"/>
         <segue reference="sgT-Aq-O96"/>
+        <segue reference="3I2-vN-3nT"/>
+        <segue reference="yuH-Bk-12U"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="Screenshot 2025-10-21 at 6.05.04 PM" width="402" height="233"/>
@@ -897,7 +913,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.2196078431372549" blue="0.23529411764705882" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

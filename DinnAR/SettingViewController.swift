@@ -6,24 +6,95 @@
 //
 
 import UIKit
+import CoreLocation
+import Contacts
+import FirebaseAuth
+import FirebaseFirestore
 
 class SettingViewController: UIViewController {
 
+    @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var locSwitch: UISwitch!
+    @IBOutlet weak var contactSwitch: UISwitch!
+
+    let locationManager = CLLocationManager()
+    let contacts = CNContactStore()
+        
     override func viewDidLoad() {
         super.viewDidLoad()
+        fetchInfo()
 
-        // Do any additional setup after loading the view.
+        updateLocationSwitch()
+        updateContactSwitch()
+        locSwitch.addTarget(self, action: #selector(locationSwitchChanged), for: .valueChanged)
+        contactSwitch.addTarget(self, action: #selector(contactSwitchChanged), for: .valueChanged)
+        }
+    private func fetchInfo() {
+        guard let userid = Auth.auth().currentUser?.uid
+        else {return}
+        
+        let db = Firestore.firestore()
+        let user = db.collection("users").document(userid)
+        user.getDocument { document, error in
+            if let error = error {
+                print("\(error.localizedDescription)")
+                return
+            }
+            
+            guard let doc = document, doc.exists,
+                  let data = doc.data()
+            else {
+                return
+            }
+            
+            let fullName = data["fullName"] as? String ?? "No Name"
+//            let email = data["email"] as? String ?? "No Email"
+//            let phone = data["phone"] as? String ?? "No Phone"
+            
+            DispatchQueue.main.async {
+                self.nameLabel.text = "Hello,\(fullName)!"
+            
+            }
+        }
     }
-    
+        private func updateLocationSwitch() {
+            let status = CLLocationManager.authorizationStatus()
+            locSwitch.isOn = (status == .authorizedAlways || status == .authorizedWhenInUse)
+        }
+        
+        @objc private func locationSwitchChanged() {
+            if locSwitch.isOn {
+                locationManager.requestWhenInUseAuthorization()
+            } else {
+                openSettings()
+            }
+        }
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        private func updateContactSwitch() {
+            let status = CNContactStore.authorizationStatus(for: .contacts)
+            contactSwitch.isOn = (status == .authorized)
+        }
+        
+        @objc private func contactSwitchChanged() {
+            if contactSwitch.isOn {
+                contacts.requestAccess(for: .contacts) { granted, error in
+                    DispatchQueue.main.async {
+                        self.contactSwitch.isOn = granted
+                        if !granted { self.openSettings() }
+                    }
+                }
+            } else {
+                openSettings()
+            }
+        }
+        private func openSettings() {
+            guard let url = URL(string: UIApplication.openSettingsURLString)
+            else {
+                return }
+            if UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url, options: [:])
+            }
+        }
     }
-    */
 
-}
+
