@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24127" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="oa4-6p-gdk">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="oa4-6p-gdk">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Map view configurations" minToolsVersion="14.0"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -98,6 +99,34 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MOw-on-1V8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="5046.5648854961828" y="969.71830985915494"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="o9v-Lf-I7K">
+            <objects>
+                <viewController id="xVy-LR-Y3C" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="tEX-3h-zEv">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cOw-1P-MdI">
+                                <rect key="frame" x="0.0" y="118" width="393" height="666"/>
+                                <standardMapConfiguration key="preferredConfiguration"/>
+                            </mapView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="kC0-kk-Wc0"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="cOw-1P-MdI" firstAttribute="leading" secondItem="kC0-kk-Wc0" secondAttribute="leading" id="Ou5-Bb-djz"/>
+                            <constraint firstItem="kC0-kk-Wc0" firstAttribute="bottom" secondItem="cOw-1P-MdI" secondAttribute="bottom" id="UBl-Un-0ze"/>
+                            <constraint firstItem="cOw-1P-MdI" firstAttribute="top" secondItem="kC0-kk-Wc0" secondAttribute="top" id="WGV-15-KTw"/>
+                            <constraint firstItem="cOw-1P-MdI" firstAttribute="top" secondItem="kC0-kk-Wc0" secondAttribute="top" id="YCO-Gu-D9j"/>
+                            <constraint firstItem="kC0-kk-Wc0" firstAttribute="trailing" secondItem="cOw-1P-MdI" secondAttribute="trailing" id="lZi-EF-zbi"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="d4D-6U-KZx" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="5941" y="970"/>
         </scene>
         <!--Login View Controller-->
         <scene sceneID="KJx-LF-2Tb">
@@ -314,7 +343,7 @@
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="oa4-6p-gdk" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="meG-eM-TQw">
-                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
+                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -913,7 +942,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemRedColor">
-            <color red="1" green="0.2196078431372549" blue="0.23529411764705882" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
