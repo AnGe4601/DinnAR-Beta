@@ -1,7 +1,13 @@
 import UIKit
 
+enum SourceVC {
+    case home
+    case favorites
+}
+
 class RestaurantInfoViewController: UIViewController {
     var restaurant: Restaurant?
+    var sourceVC: SourceVC?
 
     // MARK: - UI Elements
     let scrollView = UIScrollView()
@@ -33,6 +39,11 @@ class RestaurantInfoViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Set up custom back button
+        let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(backTapped))
+        navigationItem.leftBarButtonItem = backButton
+        
         view.backgroundColor = UIColor(red: 1, green: 0.98, blue: 0.96, alpha: 1)
         setupScrollView()
         setupUI()
@@ -44,6 +55,19 @@ class RestaurantInfoViewController: UIViewController {
             fetchGooglePlacesData(for: restaurant)
             fetchYelpData(for: restaurant)
         }
+    }
+    
+    @objc func backTapped() {
+        if let nav = navigationController {
+            if nav.viewControllers.first == self {
+                dismiss(animated: true, completion: nil)
+            } else {
+                nav.popViewController(animated: true)
+            }
+        } else {
+            dismiss(animated: true, completion: nil)
+        }
+        
     }
     
     // MARK: - Loading Indicator

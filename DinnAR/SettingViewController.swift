@@ -12,6 +12,30 @@ import FirebaseAuth
 import FirebaseFirestore
 
 class SettingViewController: UIViewController {
+    @IBOutlet weak var segmentControl: UISegmentedControl!
+
+    @IBAction func segmentChanged(_ sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0:
+            let vc = storyboard?.instantiateViewController(withIdentifier: "HomeViewController") as! HomeViewController
+            vc.modalPresentationStyle = .fullScreen
+            present(vc, animated: false)
+        case 1:
+            let vc = storyboard?.instantiateViewController(withIdentifier: "MainViewController") as! MainViewController
+            vc.modalPresentationStyle = .fullScreen
+            present(vc, animated: false)
+        case 2:
+            if let vc = storyboard?.instantiateViewController(withIdentifier: "FriendsViewController") as? FriendsViewController {
+                vc.modalPresentationStyle = .fullScreen
+                present(vc, animated: false)
+            } else {
+                print("Could not load FriendsViewController – check Storyboard ID and class.")
+            }
+        case 3: break // Already on Settings
+        default: break
+        }
+    }
+
 
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var locSwitch: UISwitch!
@@ -22,6 +46,11 @@ class SettingViewController: UIViewController {
         
     override func viewDidLoad() {
         super.viewDidLoad()
+        segmentControl.selectedSegmentIndex = 3 // Settings
+        segmentControl.selectedSegmentTintColor = UIColor.burntOrange
+            
+        // Set unselected icon/text color
+        segmentControl.tintColor = UIColor.gray
         fetchInfo()
 
         updateLocationSwitch()

@@ -1,5 +1,10 @@
 import UIKit
 
+protocol RecommendationCellDelegate: AnyObject {
+    func didToggleFavorite(for restaurant: Restaurant)
+}
+
+
 class RecommendationCell: UITableViewCell {
     
     // individual cell labels
@@ -14,6 +19,20 @@ class RecommendationCell: UITableViewCell {
     
     @IBOutlet weak var heartButton: UIButton!
     
+    var restaurant: Restaurant? {
+        didSet {
+            updateHeartIcon()
+            updateLabels()
+        }
+    }
+    weak var delegate: RecommendationCellDelegate?
+    
+    func updateLabels() {
+        guard let restaurant = restaurant else { return } // safe unwrap
+        nameLabel.text = restaurant.name
+        cuisineLabel.text = restaurant.cuisine
+    }
+
     // MARK: - Properties
     var isFavorite = false
     
@@ -38,7 +57,7 @@ class RecommendationCell: UITableViewCell {
         priceLabel.textColor = UIColor(red: 0.93, green: 0.45, blue: 0.18, alpha: 1.0)
         
         // heart button color
-        heartButton.tintColor = .systemOrange
+        heartButton.tintColor = UIColor(named: "BurntOrange")
         selectionStyle = .none
         
         // Cell appearance
@@ -59,7 +78,8 @@ class RecommendationCell: UITableViewCell {
     
     // MARK: - configure function
     func configure(with restaurant: Restaurant) {
-        
+        self.restaurant = restaurant
+
         // backup image
         restaurantImageView.image = UIImage(named: "placeholder")
         
@@ -89,9 +109,14 @@ class RecommendationCell: UITableViewCell {
                     self.restaurantImageView.layer.cornerRadius = 10
                     self.restaurantImageView.layer.masksToBounds = true
                     self.restaurantImageView.layoutIfNeeded() // ensure correct frame
+        
+        
                 }
             }.resume()
         }
+        
+        updateHeartIcon()
+
     }
     
     // MARK - star color change
@@ -112,12 +137,23 @@ class RecommendationCell: UITableViewCell {
         
         starsLabel.attributedText = starAttachment
     }
+    
+    func updateHeartIcon() {
+        guard let restaurant = restaurant else { return }
+        if FavoritesManager.shared.isFavorite(restaurant) {
+            heartButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+        } else {
+            heartButton.setImage(UIImage(systemName: "heart"), for: .normal)
+        }
+    }
+    
     // MARK: - heart button action function
     @IBAction func heartTapped(_ sender: Any) {
-        isFavorite.toggle()
-        let imageName = isFavorite ? "heart.fill" : "heart"
-        heartButton.setImage(UIImage(systemName: imageName), for: .normal)
+        guard let restaurant = restaurant else { return } // safe unwrap
+        delegate?.didToggleFavorite(for: restaurant)
+        updateHeartIcon() // update immediately after toggle
     }
+
     
     // MARK: - layout styling
     override func layoutSubviews() {
