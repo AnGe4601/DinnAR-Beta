@@ -1,0 +1,169 @@
+import UIKit
+
+struct Restaurant {
+    var name: String
+    var cuisine: String
+    var stars: String
+    var imageURL: String?
+    var reviews: String
+    var priceLevel: String
+    var distance: String
+    var location: String
+
+    // Google data
+    var description: String?
+    var rating: String?
+    var weeklyHours: String?
+    var website: String?
+    var address: String?
+
+    // Yelp details (for RestaurantInfoVC)
+    var yelpID: String?
+    var yelpReviews: [String]?
+    var yelpMenu: [String]?
+    var yelpWaitTime: String?
+}
+
+class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
+    
+    // search bar
+    @IBOutlet weak var searchBar: UISearchBar!
+    
+    // recommended restaurants table view
+    @IBOutlet weak var tableView: UITableView!
+    
+    var recommendations: [Restaurant] = []
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.dataSource = self
+        tableView.delegate = self
+        searchBar.delegate = self
+        tableView.rowHeight = 120
+        
+        fetchRestaurants(query: "restaurants in austin")
+    }
+
+    // MARK: - SerpAPI Integration
+    func fetchRestaurants(query: String) {
+        let apiKey = "dd319a412e42c0260813f3ed7c1a72666c0de0f9d1b0197b7ae8fa39f08a6e40"
+        let fullQuery = "\(query) in Austin, TX"
+        let encodedQuery = fullQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? fullQuery
+        let urlString = "https://serpapi.com/search.json?engine=google_local&q=\(encodedQuery)&api_key=\(apiKey)"
+        
+        guard let url = URL(string: urlString) else { return }
+        print("Fetching from: \(urlString)")
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                print("AHH Error fetching data: \(error)")
+                return
+            }
+            
+            guard let data = data else {
+                print("AHH No data received.")
+                return
+            }
+            
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    if let errorMessage = json["error"] as? String {
+                        print("SerpAPI Error: \(errorMessage)")
+                    }
+                    
+                    var results: [[String: Any]] = []
+                    
+                    // Updated SerpAPI path for google_local results
+                    if let localResults = json["local_results"] as? [[String: Any]] {
+                        results = localResults
+                    } else if let mapResults = json["local_map_results"] as? [[String: Any]] {
+                        results = mapResults
+                    }
+                    
+                    guard !results.isEmpty else {
+                        print("Oops no live results found — using demo data.")
+                        let demoRestaurants = [
+                            Restaurant(name: "Debug Placeholder Café", cuisine: "Italian", stars: "⭐️⭐️⭐️⭐️", imageURL: nil, reviews: "120 reviews", priceLevel: "$$", distance: "0.5 mi", location: "Austin"),
+                            Restaurant(name: "Taco Haven", cuisine: "Mexican", stars: "⭐️⭐️⭐️⭐️⭐️", imageURL: nil, reviews: "230 reviews", priceLevel: "$", distance: "1.1 mi", location: "Austin"),
+                            Restaurant(name: "Coffee Verde", cuisine: "Vegan", stars: "⭐️⭐️⭐️⭐️", imageURL: nil, reviews: "89 reviews", priceLevel: "$$", distance: "0.8 mi", location: "Austin")
+                        ]
+                        DispatchQueue.main.async {
+                            self.recommendations = demoRestaurants
+                            self.tableView.reloadData()
+                        }
+                        return
+                    }
+                    
+                    var fetchedRestaurants: [Restaurant] = []
+                    for item in results.prefix(5) {
+                        let name = item["title"] as? String ?? "Unknown"
+                        let cuisine = item["type"] as? String ?? "Restaurant"
+                        let rating = item["rating"] as? Double ?? 0.0
+                        let stars = String(repeating: "⭐️", count: Int(rating.rounded()))
+                        let imageURL = item["thumbnail"] as? String
+                        let reviews = "\(item["reviews"] ?? "0") reviews"
+                        let priceLevel = item["price"] as? String ?? "$$"
+                        let distance = item["distance"] as? String ?? "\(String(format: "%.1f", Double.random(in: 0.2...2.0))) mi"
+                        let location = item["address"] as? String ?? "Austin"
+                        
+                        fetchedRestaurants.append(Restaurant(
+                            name: name,
+                            cuisine: cuisine,
+                            stars: stars,
+                            imageURL: imageURL,
+                            reviews: reviews,
+                            priceLevel: priceLevel,
+                            distance: distance,
+                            location: location
+                        ))
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self.recommendations = fetchedRestaurants
+                        self.tableView.reloadData()
+                    }
+                } else {
+                    print("AHH JSON parsing failed or no results.")
+                }
+            } catch {
+                print("AHH Failed to decode JSON: \(error)")
+            }
+        }.resume()
+    }
+
+    // MARK: - Search Function
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let searchText = searchBar.text, !searchText.isEmpty else {return}
+        fetchRestaurants(query: searchText)
+        searchBar.resignFirstResponder()
+    }
+    
+    // MARK: - TableView
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return recommendations.count
+    }
+
+    // function to add recommendation cells
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "RecommendationCell", for: indexPath) as! RecommendationCell
+        let restaurant = recommendations[indexPath.row]
+        cell.configure(with: restaurant)
+        return cell
+    }
+    
+    // function that helps perform segue onto next tab
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "showRestaurantInfo", sender: indexPath)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showRestaurantInfo" {
+            if let indexPath = sender as? IndexPath {
+                let selectedRestaurant = recommendations[indexPath.row]
+                let destVC = segue.destination as! RestaurantInfoViewController
+                destVC.restaurant = selectedRestaurant
+            }
+        }
+    }
+
+}
