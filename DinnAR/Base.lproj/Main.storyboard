@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<<<<<<< HEAD
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="oa4-6p-gdk">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Map view configurations" minToolsVersion="14.0"/>
+=======
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24127" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="oa4-6p-gdk">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24063"/>
+>>>>>>> ab3dfefb4b6bf9897bf21dbb9fea7d9ed5bb8a5f
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -315,7 +322,11 @@
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="oa4-6p-gdk" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="meG-eM-TQw">
+<<<<<<< HEAD
                         <rect key="frame" x="0.0" y="118" width="393" height="44"/>
+=======
+                        <rect key="frame" x="0.0" y="118" width="393" height="54"/>
+>>>>>>> ab3dfefb4b6bf9897bf21dbb9fea7d9ed5bb8a5f
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -888,6 +899,7 @@
             </objects>
             <point key="canvasLocation" x="4147" y="970"/>
         </scene>
+<<<<<<< HEAD
         <!--Map View Controller-->
         <scene sceneID="Yul-NV-1y2">
             <objects>
@@ -920,6 +932,8 @@
             </objects>
             <point key="canvasLocation" x="5965.6488549618316" y="969.71830985915494"/>
         </scene>
+=======
+>>>>>>> ab3dfefb4b6bf9897bf21dbb9fea7d9ed5bb8a5f
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="RXW-v1-jK0"/>
@@ -946,7 +960,11 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemRedColor">
+<<<<<<< HEAD
             <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+=======
+            <color red="1" green="0.2196078431372549" blue="0.23529411764705882" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+>>>>>>> ab3dfefb4b6bf9897bf21dbb9fea7d9ed5bb8a5f
         </systemColor>
     </resources>
 </document>
