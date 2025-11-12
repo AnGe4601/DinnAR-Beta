@@ -14,13 +14,28 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     @IBOutlet weak var mapView: MKMapView!
     
     let locationManager = CLLocationManager()
-    var resturants: [Resturant] = []
+    var resturants: [Restaurant] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         mapView.delegate = self
         mapSetUp()
+        // test
+        resturants = [
+                Restaurant(
+                    name: "Test Café",
+                    cuisine: "Coffee",
+                    stars: "⭐️⭐️⭐️⭐️",
+                    imageURL: nil,
+                    reviews: "120 reviews",
+                    priceLevel: "$$",
+                    distance: "0.5 mi",
+                    location: "Austin",
+                    lat: 30.2675,
+                    long: -97.7429
+                )
+            ]
         addResturants()
     }
     
@@ -35,10 +50,13 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     
     func addResturants() {
         for resturant in resturants {
+            guard resturant.lat != 0.0, resturant.long != 0.0 else {
+                print("empty")
+                continue }
             let annotation = MKPointAnnotation()
             annotation.coordinate = CLLocationCoordinate2D(
-                latitude: resturant.latitude,
-                longitude: resturant.longitude
+                latitude: resturant.lat,
+                longitude: resturant.long
             )
             annotation.title = resturant.name
             annotation.subtitle = resturant.cuisine

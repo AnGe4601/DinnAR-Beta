@@ -9,6 +9,8 @@ struct Restaurant {
     var priceLevel: String
     var distance: String
     var location: String
+    var lat: Double
+    var long: Double
 
     // Google data
     var description: String?
@@ -83,9 +85,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     guard !results.isEmpty else {
                         print("Oops no live results found — using demo data.")
                         let demoRestaurants = [
-                            Restaurant(name: "Debug Placeholder Café", cuisine: "Italian", stars: "⭐️⭐️⭐️⭐️", imageURL: nil, reviews: "120 reviews", priceLevel: "$$", distance: "0.5 mi", location: "Austin"),
-                            Restaurant(name: "Taco Haven", cuisine: "Mexican", stars: "⭐️⭐️⭐️⭐️⭐️", imageURL: nil, reviews: "230 reviews", priceLevel: "$", distance: "1.1 mi", location: "Austin"),
-                            Restaurant(name: "Coffee Verde", cuisine: "Vegan", stars: "⭐️⭐️⭐️⭐️", imageURL: nil, reviews: "89 reviews", priceLevel: "$$", distance: "0.8 mi", location: "Austin")
+                            Restaurant(name: "Debug Placeholder Café", cuisine: "Italian", stars: "⭐️⭐️⭐️⭐️", imageURL: nil, reviews: "120 reviews", priceLevel: "$$", distance: "0.5 mi", location: "Austin", lat: 30.2599, long: 97.7402),
+                            Restaurant(name: "Taco Haven", cuisine: "Mexican", stars: "⭐️⭐️⭐️⭐️⭐️", imageURL: nil, reviews: "230 reviews", priceLevel: "$", distance: "1.1 mi", location: "Austin", lat: 26.0203, long: 80.2856),
+                            Restaurant(name: "Coffee Verde", cuisine: "Vegan", stars: "⭐️⭐️⭐️⭐️", imageURL: nil, reviews: "89 reviews", priceLevel: "$$", distance: "0.8 mi", location: "Austin", lat: 14.69, long: 121)
                         ]
                         DispatchQueue.main.async {
                             self.recommendations = demoRestaurants
@@ -105,6 +107,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                         let priceLevel = item["price"] as? String ?? "$$"
                         let distance = item["distance"] as? String ?? "\(String(format: "%.1f", Double.random(in: 0.2...2.0))) mi"
                         let location = item["address"] as? String ?? "Austin"
+                        let gps = item["gps_coordinates"] as? [String: Any]
+                        let lat = gps?["latitude"] as? Double ?? 0.0
+                        let long = gps?["longitude"] as? Double ?? 0.0
                         
                         fetchedRestaurants.append(Restaurant(
                             name: name,
@@ -114,7 +119,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                             reviews: reviews,
                             priceLevel: priceLevel,
                             distance: distance,
-                            location: location
+                            location: location,
+                            lat: lat,
+                            long: long
                         ))
                     }
                     
