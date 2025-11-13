@@ -10,34 +10,33 @@ import MapKit
 import CoreLocation
 
 class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate {
-    
+
     @IBOutlet weak var mapView: MKMapView!
     
     let locationManager = CLLocationManager()
-    var restaurants: [Restaurant] = []
+    var resturants: [Restaurant] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         mapView.delegate = self
         mapSetUp()
-        
         // test
-        restaurants = [
-            Restaurant(
-                name: "Test Café",
-                cuisine: "Coffee",
-                stars: "⭐️⭐️⭐️⭐️",
-                imageURL: nil,
-                reviews: "120 reviews",
-                priceLevel: "$$",
-                distance: "0.5 mi",
-                location: "Austin",
-                lat: 30.2675,
-                long: -97.7429
-            )
-        ]
-        addRestaurants()
+        resturants = [
+                Restaurant(
+                    name: "Test Café",
+                    cuisine: "Coffee",
+                    stars: "⭐️⭐️⭐️⭐️",
+                    imageURL: nil,
+                    reviews: "120 reviews",
+                    priceLevel: "$$",
+                    distance: "0.5 mi",
+                    location: "Austin",
+                    lat: 30.2675,
+                    long: -97.7429
+                )
+            ]
+        addResturants()
     }
     
     // centering map around Austin
@@ -45,29 +44,25 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         let region = MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 30.2672, longitude: -97.7431),
             span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-        )
-        mapView.setRegion(region, animated: true)
+            )
+            mapView.setRegion(region, animated: true)
     }
     
-    func addRestaurants() {
-        let geocoder = CLGeocoder()
-        
-        for restaurant in restaurants {
-            geocoder.geocodeAddressString(restaurant.location) { [weak self] placemarks, error in
-                guard let self = self else { return }
-                
-                if let coordinate = placemarks?.first?.location?.coordinate {
-                    let annotation = MKPointAnnotation()
-                    annotation.coordinate = coordinate
-                    annotation.title = restaurant.name
-                    annotation.subtitle = restaurant.cuisine
-                    self.mapView.addAnnotation(annotation)
-                } else if let error = error {
-                    print("Geocoding failed for \(restaurant.name): \(error.localizedDescription)")
-                }
-            }
+    func addResturants() {
+        for resturant in resturants {
+            guard resturant.lat != 0.0, resturant.long != 0.0 else {
+                continue }
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = CLLocationCoordinate2D(
+                latitude: resturant.lat,
+                longitude: resturant.long
+            )
+            annotation.title = resturant.name
+            annotation.subtitle = resturant.cuisine
+            mapView.addAnnotation(annotation)
         }
     }
+    
     /*
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView,
                      calloutAccessoryControlTapped control: UIControl) {
@@ -85,6 +80,4 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             }
         }
      */
-
 }
-
