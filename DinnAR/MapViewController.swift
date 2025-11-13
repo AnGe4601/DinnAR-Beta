@@ -114,7 +114,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
                     }
                     
                     DispatchQueue.main.async {
-                        self.resturants = fetchedRestaurants
+                        self.restaurants = fetchedRestaurants
                         self.addRestaurants()
                     }
                 }
@@ -126,7 +126,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     
     // MARK: - Add Map Pins
     func addRestaurants() {
-        for restaurant in resturants {
+        for restaurant in restaurants {
             guard restaurant.lat != 0.0, restaurant.long != 0.0 else { continue }
             let annotation = MKPointAnnotation()
             annotation.coordinate = CLLocationCoordinate2D(latitude: restaurant.lat, longitude: restaurant.long)
