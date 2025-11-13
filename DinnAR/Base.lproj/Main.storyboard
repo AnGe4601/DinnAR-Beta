@@ -186,7 +186,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="d4D-6U-KZx" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="6866.4122137404574" y="969.71830985915494"/>
+            <point key="canvasLocation" x="7027" y="970"/>
         </scene>
         <!--Login View Controller-->
         <scene sceneID="KJx-LF-2Tb">
@@ -1165,7 +1165,7 @@
         <segue reference="zXG-jN-EaD"/>
         <segue reference="sgT-Aq-O96"/>
         <segue reference="3I2-vN-3nT"/>
-        <segue reference="yuH-Bk-12U"/>
+        <segue reference="fef-wa-HbF"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="Screenshot 2025-10-21 at 6.05.04 PM" width="402" height="233"/>

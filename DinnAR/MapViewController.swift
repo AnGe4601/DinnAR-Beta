@@ -22,12 +22,27 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         
         mapView.delegate = self
         setupSegmentControl()
+        /*  test
+        resturants = [
+                    Restaurant(
+                        name: "Test Café",
+                        cuisine: "Coffee",
+                        stars: "⭐️⭐️⭐️⭐️",
+                        imageURL: nil,
+                        reviews: "120 reviews",
+                        priceLevel: "$$",
+                        distance: "0.5 mi",
+                        location: "Austin",
+                        lat: 30.2675,
+                        long: -97.7429
+                    )
+                ]
+         */
         mapSetUp()
         
         fetchRestaurants(query: "restaurants in Austin")
     }
     
-    // MARK: - Map Setup
     func mapSetUp() {
         let region = MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 30.2672, longitude: -97.7431),
@@ -36,7 +51,6 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             mapView.setRegion(region, animated: true)
     }
     
-    // MARK: - Fetch Restaurants (SerpAPI)
     func fetchRestaurants(query: String) {
         let apiKey = "82d6e2c51201426737573e6ea30569f9db91afcd7bed48520ce651746eb88a6d"
         let fullQuery = "\(query) in Austin, TX"
@@ -100,7 +114,7 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
                     }
                     
                     DispatchQueue.main.async {
-                        self.restaurants = fetchedRestaurants
+                        self.resturants = fetchedRestaurants
                         self.addRestaurants()
                     }
                 }
@@ -112,10 +126,10 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
     
     // MARK: - Add Map Pins
     func addRestaurants() {
-        
-        for restaurant in restaurants {
+        for restaurant in resturants {
             guard restaurant.lat != 0.0, restaurant.long != 0.0 else { continue }
             let annotation = MKPointAnnotation()
+            annotation.coordinate = CLLocationCoordinate2D(latitude: restaurant.lat, longitude: restaurant.long)
             annotation.title = restaurant.name
             annotation.subtitle = restaurant.cuisine
             mapView.addAnnotation(annotation)
