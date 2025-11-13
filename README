@@ -1,0 +1,58 @@
+Note: The AR feature has been replaced with our “Friends” stretch feature, which allows users to __________ (idk the specifics of this). This change was made in response to TA feedback indicating that the initial AR feature provided limited value to our app, as well as feasibility concerns given the project’s timeframe.
+Contributions:
+Lakshmi Iyer (Release 25%, Overall 25%) 
+Alpha Release:
+Completed Login and Registration screens and successfully integrated with Firebase Authentication, allowing users to create new accounts and log in with an existing account. Also have implemented input validation/error handling for missing fields, bad email or phone number formats, and any mismatch between password and password confirmation fields. Minor tweaks need to be made to reflect design updates. Need to incorporate password resetting with the “Forgot Password” feature. 
+Completed a portion of Settings Screen (UI components only), lacks functionality and will need to incorporate camera/location access toggling. 
+Beta Release:
+Handled contact and location permissions upon app download and sign up
+Saved user info (name, phone number, email) to firestore to be used on settings page and to support ‘friends’ feature 
+Completed settings screen with the following capabilities: (will be connected to app flow after app tab bar fixed)
+Populated with user info fetched from Firestore
+Allowing edits to user preferences (price point, cuisine, etc.).
+Can toggle location/contacts access on and off
+If attempting to turn back on after disabling access, it will redirect you to Apple settings (If location permissions updated in Apples settings, need the toggle switch in the app to reflect the state of permissions, will work on this for final release)
+Added logout functionality based on Alpha Release feedback.
+Completed preliminary work/research for filtering restaurant searches based on user preferences
+Ongoing work to store and fetch these preferences in Firestore.
+Future integration planned with the restaurant search API for filtered results in the final release.
+Added a ‘forgot password’ feature allowing users to receive password reset links via email.
+
+Name (Release 25%, Overall 25%) 
+Alpha Release:
+Placeholder
+Placeholder
+Beta Release:
+Placeholder
+Placeholder
+
+Name (Release 25%, Overall 25%) 
+Alpha Release:
+Placeholder
+Placeholder
+Beta Release:
+Placeholder
+Placeholder
+
+Name (Release 25%, Overall 25%) 
+Alpha Release:
+Placeholder
+Placeholder
+Beta Release:
+Placeholder
+Placeholder
+Deviations: 
+Lakshmi
+Will connect fetched preferences to API to filter results for final release (need to learn the workings of the SerpAPI)
+Will connect settings page properly and add an “add/change profile picture” feature
+If location permissions updated in Apples settings, need the toggle switch in the app to reflect the state of permissions, will work on this for final release
+Name
+
+
+Name
+
+
+Name 
+
+
+
