@@ -10,12 +10,12 @@ import MapKit
 import CoreLocation
 
 class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate {
-    
+
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var segmentControl: UISegmentedControl!
     
     let locationManager = CLLocationManager()
-    var restaurants: [Restaurant] = []
+    var resturants: [Restaurant] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,8 +32,8 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         let region = MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 30.2672, longitude: -97.7431),
             span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
-        )
-        mapView.setRegion(region, animated: true)
+            )
+            mapView.setRegion(region, animated: true)
     }
     
     // MARK: - Fetch Restaurants (SerpAPI)
