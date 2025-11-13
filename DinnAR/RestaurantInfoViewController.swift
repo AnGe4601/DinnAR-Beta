@@ -6,37 +6,47 @@ enum SourceVC {
 }
 
 class RestaurantInfoViewController: UIViewController {
+    
+    // MARK: - Properties
     var restaurant: Restaurant?
     var sourceVC: SourceVC?
-
-    // MARK: - UI Elements
-    let scrollView = UIScrollView()
-    let contentView = UIView()
-    let nameLabel = UILabel()
-    let starsView = UIView()
-    let restaurantImageView = UIImageView()
-    let priceDistanceStack = UIStackView()
-    let descriptionLabel = UILabel()
-    let quickInfoStack = UIStackView()
-    let directionsButton = UIButton(type: .system)
-    let callButton = UIButton(type: .system)
-    let shareButton = UIButton(type: .system)
-    let segmentedControl = UISegmentedControl(items: ["Menu", "Reviews", "Info"])
-    let infoTextView = UITextView()
-    let bottomButton = UIButton(type: .system)
-    let loadingIndicator = UIActivityIndicatorView(style: .large)
-
-    // MARK: - Data
-    private var menuItems: String = "No menu information available.\n\nPlease visit the restaurant's website or call for menu details."
-    private var reviewsText: String = "No reviews available yet.\n\nBe the first to review this restaurant!"
-    private var infoText: String = "Loading restaurant information..."
-    private var websiteURL: String?
-    private var yelpURL: String?
-    private var phoneNumber: String?
-    private var userRating: Int = 0
     private var isFavorite: Bool = false
     
+    // Data from API
+    private var menuItems: String = "No menu information available.\n\nPlease visit the restaurant's website or call for menu details."
+    private var reviewsData: [[String: Any]] = []
+    private var averageRating: Double = 0.0
+    private var reviewCount: Int = 0
+    private var phoneNumber: String?
+    private var yelpURL: String?
+    private var restaurantAddress: String?
+    private var restaurantHours: String?
     
+    // MARK: - UI Elements
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
+    private let restaurantImageView = UIImageView()
+    private let nameLabel = UILabel()
+    private let starsView = UIView()
+    private let ratingLabel = UILabel()
+    private let priceDistanceStack = UIStackView()
+    private let descriptionLabel = UILabel()
+    private let segmentedControl = UISegmentedControl(items: ["Menu", "Reviews", "Info"])
+    private let contentContainerView = UIView()
+    private let menuTextView = UITextView()
+    private let reviewsStackView = UIStackView()
+    private let infoStackView = UIStackView()
+    private let quickInfoStack = UIStackView()
+    private let directionsButton = UIButton(type: .system)
+    private let callButton = UIButton(type: .system)
+    private let shareButton = UIButton(type: .system)
+    private let bottomButton = UIButton(type: .system)
+    
+    private var contentContainerTopConstraint: NSLayoutConstraint!
+    
+    // MARK: - Lifecycle
+    
+    // Initial setup when view loads
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -45,14 +55,13 @@ class RestaurantInfoViewController: UIViewController {
         navigationItem.leftBarButtonItem = backButton
         
         view.backgroundColor = UIColor(red: 1, green: 0.98, blue: 0.96, alpha: 1)
+        
         setupScrollView()
         setupUI()
-        setupLoadingIndicator()
         populateBasicInfo()
-        setupInteractiveStars()
+        setupStarsDisplay()
         
         if let restaurant = restaurant {
-            fetchGooglePlacesData(for: restaurant)
             fetchYelpData(for: restaurant)
         }
     }
@@ -67,33 +76,25 @@ class RestaurantInfoViewController: UIViewController {
         } else {
             dismiss(animated: true, completion: nil)
         }
-        
     }
     
-    // MARK: - Loading Indicator
-    func setupLoadingIndicator() {
-        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
-        loadingIndicator.color = .systemOrange
-        loadingIndicator.hidesWhenStopped = true
-        view.addSubview(loadingIndicator)
-        NSLayoutConstraint.activate([
-            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
-    }
-
-    // MARK: - SCROLL VIEW AND LAYOUT
-    func setupScrollView() {
+    // MARK: - Setup Methods
+    
+    // Configures the main scroll view and content container
+    private func setupScrollView() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(scrollView)
+        
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        
         contentView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(contentView)
+        
         NSLayoutConstraint.activate([
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
@@ -102,29 +103,50 @@ class RestaurantInfoViewController: UIViewController {
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
         ])
     }
-
-    // MARK: - UI SETUP
-    func setupUI() {
+    
+    // Calls all UI setup methods in order
+    private func setupUI() {
         let padding: CGFloat = 20
-
+        
+        setupImageView(padding: padding)
+        setupNameAndIcons(padding: padding)
+        setupStarsContainer()
+        setupBadges()
+        setupDescription()
+        setupSegmentedControl(padding: padding)
+        setupContentContainer(padding: padding)
+        setupMenuView()
+        setupReviewsView()
+        setupInfoView()
+        setupActionButtons(padding: padding)
+        setupBottomButton(padding: padding)
+    }
+    
+    // Sets up the restaurant image view at the top
+    private func setupImageView(padding: CGFloat) {
         restaurantImageView.contentMode = .scaleAspectFill
         restaurantImageView.layer.cornerRadius = 18
         restaurantImageView.clipsToBounds = true
         restaurantImageView.backgroundColor = UIColor(white: 0.96, alpha: 1.0)
         restaurantImageView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(restaurantImageView)
+        
         NSLayoutConstraint.activate([
             restaurantImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30),
             restaurantImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
             restaurantImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
             restaurantImageView.heightAnchor.constraint(equalToConstant: 200)
         ])
-
+    }
+    
+    // Sets up restaurant name label and friend/favorite icons
+    private func setupNameAndIcons(padding: CGFloat) {
         nameLabel.font = UIFont.boldSystemFont(ofSize: 28)
         nameLabel.textColor = UIColor(red: 0.14, green: 0.14, blue: 0.13, alpha: 1)
         nameLabel.numberOfLines = 2
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(nameLabel)
+        
         NSLayoutConstraint.activate([
             nameLabel.topAnchor.constraint(equalTo: restaurantImageView.bottomAnchor, constant: 16),
             nameLabel.leadingAnchor.constraint(equalTo: restaurantImageView.leadingAnchor),
@@ -138,51 +160,76 @@ class RestaurantInfoViewController: UIViewController {
         shareButton.layer.cornerRadius = 22
         shareButton.translatesAutoresizingMaskIntoConstraints = false
         shareButton.addTarget(self, action: #selector(shareButtonTapped), for: .touchUpInside)
-
+        
         contentView.addSubview(shareButton)
-
-        // Layout constraints for icon stack
+        
         NSLayoutConstraint.activate([
             shareButton.topAnchor.constraint(equalTo: nameLabel.topAnchor),
             shareButton.trailingAnchor.constraint(equalTo: restaurantImageView.trailingAnchor),
             shareButton.widthAnchor.constraint(equalToConstant: 44),
             shareButton.heightAnchor.constraint(equalToConstant: 44)
         ])
-
+    }
+    
+    // Sets up the star rating view and rating label
+    private func setupStarsContainer() {
+        let starsContainer = UIStackView(arrangedSubviews: [starsView, ratingLabel])
+        starsContainer.axis = .horizontal
+        starsContainer.spacing = 8
+        starsContainer.alignment = .center
+        starsContainer.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(starsContainer)
+        
         starsView.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(starsView)
         NSLayoutConstraint.activate([
-            starsView.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
-            starsView.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
-            starsView.heightAnchor.constraint(equalToConstant: 30),
-            starsView.widthAnchor.constraint(equalToConstant: 160)
+            starsView.heightAnchor.constraint(equalToConstant: 24),
+            starsView.widthAnchor.constraint(equalToConstant: 130)
         ])
         
-        // Price & Distance badges
+        ratingLabel.font = UIFont.systemFont(ofSize: 15, weight: .medium)
+        ratingLabel.textColor = .darkGray
+        ratingLabel.text = "No ratings yet"
+        
+        NSLayoutConstraint.activate([
+            starsContainer.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
+            starsContainer.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor)
+        ])
+    }
+    
+    // Sets up price and distance badges
+    private func setupBadges() {
         priceDistanceStack.axis = .horizontal
         priceDistanceStack.spacing = 8
         priceDistanceStack.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(priceDistanceStack)
+        
         NSLayoutConstraint.activate([
-            priceDistanceStack.topAnchor.constraint(equalTo: starsView.bottomAnchor, constant: 10),
+            priceDistanceStack.topAnchor.constraint(equalTo: starsView.superview!.bottomAnchor, constant: 10),
             priceDistanceStack.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor)
         ])
-
+    }
+    
+    // Sets up the cuisine description label
+    private func setupDescription() {
         descriptionLabel.font = UIFont.systemFont(ofSize: 16)
         descriptionLabel.textColor = .darkGray
         descriptionLabel.numberOfLines = 0
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(descriptionLabel)
+        
         NSLayoutConstraint.activate([
             descriptionLabel.topAnchor.constraint(equalTo: priceDistanceStack.bottomAnchor, constant: 8),
             descriptionLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: nameLabel.trailingAnchor)
         ])
-        
-        // Segmented control (after description)
+    }
+    
+    // Sets up the Menu/Reviews/Info segmented control
+    private func setupSegmentedControl(padding: CGFloat) {
         segmentedControl.selectedSegmentIndex = 0
         segmentedControl.backgroundColor = UIColor(red: 1, green: 0.98, blue: 0.96, alpha: 1)
         segmentedControl.selectedSegmentTintColor = .white
+        
         let normalAttr: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.darkGray,
             .font: UIFont.systemFont(ofSize: 16, weight: .medium)
@@ -196,43 +243,100 @@ class RestaurantInfoViewController: UIViewController {
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
         segmentedControl.addTarget(self, action: #selector(segmentedControlChanged(_:)), for: .valueChanged)
         contentView.addSubview(segmentedControl)
+        
         NSLayoutConstraint.activate([
             segmentedControl.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 14),
             segmentedControl.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
             segmentedControl.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
             segmentedControl.heightAnchor.constraint(equalToConstant: 40)
         ])
-
-        // Info Text View - directly below segmented control with small gap
-        infoTextView.layer.cornerRadius = 12
-        infoTextView.isEditable = false
-        infoTextView.backgroundColor = UIColor(white: 0.97, alpha: 1.0)
-        infoTextView.font = UIFont.systemFont(ofSize: 15)
-        infoTextView.textColor = UIColor(red: 0.23, green: 0.23, blue: 0.21, alpha: 1)
-        infoTextView.textContainerInset = UIEdgeInsets(top: 13, left: 13, bottom: 13, right: 13)
-        infoTextView.translatesAutoresizingMaskIntoConstraints = false
-        infoTextView.isScrollEnabled = false
-        contentView.addSubview(infoTextView)
-        NSLayoutConstraint.activate([
-            infoTextView.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 8),
-            infoTextView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
-            infoTextView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding)
-        ])
+    }
+    
+    // Sets up the container that holds menu/reviews/info content
+    private func setupContentContainer(padding: CGFloat) {
+        contentContainerView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(contentContainerView)
         
-        // Quick action buttons (Directions, Call) - directly below text view
+        let topConstraint = contentContainerView.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 8)
+        self.contentContainerTopConstraint = topConstraint
+        
+        NSLayoutConstraint.activate([
+            topConstraint,
+            contentContainerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
+            contentContainerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding)
+        ])
+    }
+    
+    // Sets up the menu text view
+    private func setupMenuView() {
+        menuTextView.layer.cornerRadius = 12
+        menuTextView.isEditable = false
+        menuTextView.backgroundColor = UIColor(white: 0.97, alpha: 1.0)
+        menuTextView.font = UIFont.systemFont(ofSize: 15)
+        menuTextView.textColor = UIColor(red: 0.23, green: 0.23, blue: 0.21, alpha: 1)
+        menuTextView.textContainerInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        menuTextView.translatesAutoresizingMaskIntoConstraints = false
+        menuTextView.isScrollEnabled = false
+        menuTextView.dataDetectorTypes = [.link, .phoneNumber]
+        menuTextView.text = menuItems
+        menuTextView.textContainer.lineFragmentPadding = 0
+        contentContainerView.addSubview(menuTextView)
+        
+        NSLayoutConstraint.activate([
+            menuTextView.topAnchor.constraint(equalTo: contentContainerView.topAnchor),
+            menuTextView.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor),
+            menuTextView.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor),
+            menuTextView.bottomAnchor.constraint(equalTo: contentContainerView.bottomAnchor)
+        ])
+    }
+    
+    // Sets up the reviews stack view
+    private func setupReviewsView() {
+        reviewsStackView.axis = .vertical
+        reviewsStackView.spacing = 12
+        reviewsStackView.translatesAutoresizingMaskIntoConstraints = false
+        reviewsStackView.isHidden = true
+        contentContainerView.addSubview(reviewsStackView)
+        
+        NSLayoutConstraint.activate([
+            reviewsStackView.topAnchor.constraint(equalTo: contentContainerView.topAnchor),
+            reviewsStackView.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor),
+            reviewsStackView.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor),
+            reviewsStackView.bottomAnchor.constraint(equalTo: contentContainerView.bottomAnchor)
+        ])
+    }
+    
+    // Sets up the info stack view
+    private func setupInfoView() {
+        infoStackView.axis = .vertical
+        infoStackView.spacing = 12
+        infoStackView.translatesAutoresizingMaskIntoConstraints = false
+        infoStackView.isHidden = true
+        contentContainerView.addSubview(infoStackView)
+        
+        NSLayoutConstraint.activate([
+            infoStackView.topAnchor.constraint(equalTo: contentContainerView.topAnchor),
+            infoStackView.leadingAnchor.constraint(equalTo: contentContainerView.leadingAnchor),
+            infoStackView.trailingAnchor.constraint(equalTo: contentContainerView.trailingAnchor),
+            infoStackView.bottomAnchor.constraint(equalTo: contentContainerView.bottomAnchor)
+        ])
+    }
+    
+    // Sets up Directions and Call buttons
+    private func setupActionButtons(padding: CGFloat) {
         quickInfoStack.axis = .horizontal
         quickInfoStack.spacing = 10
         quickInfoStack.distribution = .fillEqually
         quickInfoStack.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(quickInfoStack)
+        
         NSLayoutConstraint.activate([
-            quickInfoStack.topAnchor.constraint(equalTo: infoTextView.bottomAnchor, constant: 14),
+            quickInfoStack.topAnchor.constraint(equalTo: contentContainerView.bottomAnchor, constant: 14),
             quickInfoStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
             quickInfoStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -padding),
             quickInfoStack.heightAnchor.constraint(equalToConstant: 44)
         ])
         
-        // Directions button
         directionsButton.setTitle("Directions", for: .normal)
         directionsButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         directionsButton.backgroundColor = UIColor.systemOrange.withAlphaComponent(0.18)
@@ -241,7 +345,6 @@ class RestaurantInfoViewController: UIViewController {
         directionsButton.addTarget(self, action: #selector(openDirections), for: .touchUpInside)
         quickInfoStack.addArrangedSubview(directionsButton)
         
-        // Call button
         callButton.setTitle("Call", for: .normal)
         callButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         callButton.backgroundColor = UIColor.systemOrange.withAlphaComponent(0.18)
@@ -249,8 +352,10 @@ class RestaurantInfoViewController: UIViewController {
         callButton.layer.cornerRadius = 10
         callButton.addTarget(self, action: #selector(callRestaurant), for: .touchUpInside)
         quickInfoStack.addArrangedSubview(callButton)
-
-        // Mark Visited button
+    }
+    
+    // Sets up the Mark Visited button at the bottom
+    private func setupBottomButton(padding: CGFloat) {
         bottomButton.setTitle("Mark Visited", for: .normal)
         bottomButton.backgroundColor = UIColor.systemOrange
         bottomButton.setTitleColor(.white, for: .normal)
@@ -259,6 +364,7 @@ class RestaurantInfoViewController: UIViewController {
         bottomButton.clipsToBounds = true
         bottomButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(bottomButton)
+        
         NSLayoutConstraint.activate([
             bottomButton.topAnchor.constraint(equalTo: quickInfoStack.bottomAnchor, constant: 22),
             bottomButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: padding),
@@ -266,12 +372,107 @@ class RestaurantInfoViewController: UIViewController {
             bottomButton.heightAnchor.constraint(equalToConstant: 46),
             bottomButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -32)
         ])
-        
-        infoTextView.text = menuItems
     }
     
-    // MARK: - Helper to create badge
-    func createBadge(text: String, bgColor: UIColor) -> UIView {
+    // MARK: - Data Population
+    
+    // Populates UI with basic restaurant info (name, cuisine, badges, image)
+    private func populateBasicInfo() {
+        guard let restaurant = restaurant else { return }
+        
+        nameLabel.text = restaurant.name
+        descriptionLabel.text = restaurant.cuisine
+        
+        let priceBadge = createBadge(text: restaurant.priceLevel, bgColor: UIColor.systemOrange.withAlphaComponent(0.15))
+        priceDistanceStack.addArrangedSubview(priceBadge)
+        
+        let distanceBadge = createBadge(text: restaurant.distance, bgColor: UIColor.systemOrange.withAlphaComponent(0.15))
+        priceDistanceStack.addArrangedSubview(distanceBadge)
+        
+        if let urlString = restaurant.imageURL,
+           let url = URL(string: urlString),
+           urlString.starts(with: "http") {
+            loadImage(from: url)
+        }
+    }
+    
+    // Initializes the stars display with empty stars
+    private func setupStarsDisplay() {
+        starsView.subviews.forEach { $0.removeFromSuperview() }
+        updateStarsDisplay()
+    }
+    
+    // Updates the star rating display based on current rating data
+    private func updateStarsDisplay() {
+        starsView.subviews.forEach { $0.removeFromSuperview() }
+        
+        let starCount = 5
+        let starSize: CGFloat = 24
+        let spacing: CGFloat = 3
+        
+        for i in 0..<starCount {
+            let imageView = UIImageView()
+            imageView.frame = CGRect(x: CGFloat(i) * (starSize + spacing), y: 0, width: starSize, height: starSize)
+            imageView.contentMode = .scaleAspectFit
+            imageView.tintColor = UIColor(red: 0.97, green: 0.58, blue: 0.11, alpha: 1)
+            
+            let starIndex = Double(i + 1)
+            if averageRating >= starIndex {
+                imageView.image = UIImage(systemName: "star.fill")
+            } else if averageRating > starIndex - 1 {
+                imageView.image = UIImage(systemName: "star.leadinghalf.filled")
+            } else {
+                imageView.image = UIImage(systemName: "star")
+            }
+            
+            starsView.addSubview(imageView)
+        }
+        
+        if reviewCount > 0 {
+            ratingLabel.text = String(format: "%.1f (%d reviews)", averageRating, reviewCount)
+        } else {
+            ratingLabel.text = "No ratings yet"
+        }
+    }
+    
+    // Refreshes the reviews display with current review data
+    private func updateReviewsDisplay() {
+        reviewsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        
+        if reviewsData.isEmpty {
+            let emptyLabel = UILabel()
+            emptyLabel.text = "No reviews available yet.\n\nBe the first to review this restaurant!"
+            emptyLabel.font = UIFont.systemFont(ofSize: 15)
+            emptyLabel.textColor = .darkGray
+            emptyLabel.textAlignment = .center
+            emptyLabel.numberOfLines = 0
+            reviewsStackView.addArrangedSubview(emptyLabel)
+        } else {
+            for reviewData in reviewsData.prefix(3) {
+                if let userName = reviewData["userName"] as? String,
+                   let rating = reviewData["rating"] as? Int,
+                   let reviewText = reviewData["text"] as? String {
+                    let reviewCard = createReviewCard(userName: userName, rating: rating, reviewText: reviewText)
+                    reviewsStackView.addArrangedSubview(reviewCard)
+                }
+            }
+        }
+    }
+    
+    // Updates the info tab with available restaurant information
+    private func updateInfoDisplay() {
+        infoStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        
+        if let yelpURL = yelpURL {
+            let yelpCard = createInfoCard(title: "YELP PAGE", content: "Open in Yelp", isButton: true, action: #selector(openYelpPage))
+            infoStackView.addArrangedSubview(yelpCard)
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    // Creates a rounded badge with text (for price and distance)
+    private func createBadge(text: String, bgColor: UIColor) -> UIView {
         let container = UIView()
         container.backgroundColor = bgColor
         container.layer.cornerRadius = 12
@@ -293,274 +494,184 @@ class RestaurantInfoViewController: UIViewController {
         
         return container
     }
-
-    // MARK: - Populate the basic stuff
-    func populateBasicInfo() {
-        guard let restaurant = restaurant else { return }
-        nameLabel.text = restaurant.name
-        descriptionLabel.text = restaurant.cuisine
+    
+    // Creates a review card with user name, rating stars, and review text
+    private func createReviewCard(userName: String, rating: Int, reviewText: String) -> UIView {
+        let cardView = UIView()
+        cardView.backgroundColor = .white
+        cardView.layer.cornerRadius = 14
+        cardView.layer.shadowColor = UIColor.black.cgColor
+        cardView.layer.shadowOpacity = 0.08
+        cardView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        cardView.layer.shadowRadius = 8
+        cardView.translatesAutoresizingMaskIntoConstraints = false
         
-        // Add price badge
-        let priceBadge = createBadge(text: restaurant.priceLevel, bgColor: UIColor.systemOrange.withAlphaComponent(0.15))
-        priceDistanceStack.addArrangedSubview(priceBadge)
+        let headerStack = UIStackView()
+        headerStack.axis = .horizontal
+        headerStack.distribution = .equalSpacing
+        headerStack.alignment = .center
+        headerStack.translatesAutoresizingMaskIntoConstraints = false
         
-        // Add distance badge
-        let distanceBadge = createBadge(text: restaurant.distance, bgColor: UIColor.systemOrange.withAlphaComponent(0.15))
-        priceDistanceStack.addArrangedSubview(distanceBadge)
-
-        if let urlString = restaurant.imageURL,
-           let url = URL(string: urlString),
-           urlString.starts(with: "http") {
-            loadImage(from: url)
+        let nameLabel = UILabel()
+        nameLabel.text = userName
+        nameLabel.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        nameLabel.textColor = UIColor(red: 0.14, green: 0.14, blue: 0.13, alpha: 1)
+        
+        let starsContainer = UIView()
+        starsContainer.translatesAutoresizingMaskIntoConstraints = false
+        
+        let starSize: CGFloat = 16
+        let starSpacing: CGFloat = 2
+        for i in 0..<5 {
+            let starImageView = UIImageView()
+            starImageView.frame = CGRect(x: CGFloat(i) * (starSize + starSpacing), y: 0, width: starSize, height: starSize)
+            starImageView.contentMode = .scaleAspectFit
+            starImageView.tintColor = UIColor.systemOrange
+            starImageView.image = i < rating ? UIImage(systemName: "star.fill") : UIImage(systemName: "star")
+            starsContainer.addSubview(starImageView)
         }
+        
+        NSLayoutConstraint.activate([
+            starsContainer.widthAnchor.constraint(equalToConstant: CGFloat(5) * (starSize + starSpacing)),
+            starsContainer.heightAnchor.constraint(equalToConstant: starSize)
+        ])
+        
+        headerStack.addArrangedSubview(nameLabel)
+        headerStack.addArrangedSubview(starsContainer)
+        
+        let scrollView = UIScrollView()
+        scrollView.showsVerticalScrollIndicator = true
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        
+        let textLabel = UILabel()
+        textLabel.text = reviewText
+        textLabel.font = UIFont.systemFont(ofSize: 14)
+        textLabel.textColor = UIColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 1)
+        textLabel.numberOfLines = 0
+        textLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        scrollView.addSubview(textLabel)
+        cardView.addSubview(headerStack)
+        cardView.addSubview(scrollView)
+        
+        NSLayoutConstraint.activate([
+            headerStack.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 14),
+            headerStack.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 16),
+            headerStack.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -16),
+            
+            scrollView.topAnchor.constraint(equalTo: headerStack.bottomAnchor, constant: 8),
+            scrollView.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 16),
+            scrollView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -16),
+            scrollView.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -14),
+            scrollView.heightAnchor.constraint(equalToConstant: 60),
+            
+            textLabel.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            textLabel.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            textLabel.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            textLabel.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            textLabel.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+        ])
+        
+        return cardView
     }
-
-    // MARK: - INTERACTIVE STARS (User can rate)
-    func setupInteractiveStars() {
-        starsView.subviews.forEach { $0.removeFromSuperview() }
+    
+    // Creates an info card with a title and content (for either text or button)
+    private func createInfoCard(title: String, content: String, isButton: Bool = false, action: Selector? = nil) -> UIView {
+        let cardView = UIView()
+        cardView.backgroundColor = .white
+        cardView.layer.cornerRadius = 14
+        cardView.layer.shadowColor = UIColor.black.cgColor
+        cardView.layer.shadowOpacity = 0.08
+        cardView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        cardView.layer.shadowRadius = 8
+        cardView.translatesAutoresizingMaskIntoConstraints = false
         
-        let starCount = 5
-        let starSize: CGFloat = 28
-        let spacing: CGFloat = 4
+        let titleLabel = UILabel()
+        titleLabel.text = title
+        titleLabel.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
+        titleLabel.textColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        for i in 0..<starCount {
+        cardView.addSubview(titleLabel)
+        
+        if isButton {
             let button = UIButton(type: .system)
-            button.tag = i + 1
-            button.frame = CGRect(x: CGFloat(i) * (starSize + spacing), y: 0, width: starSize, height: starSize)
-            button.setImage(UIImage(systemName: "star"), for: .normal)
-            button.tintColor = UIColor(red: 0.97, green: 0.58, blue: 0.11, alpha: 1)
-            button.addTarget(self, action: #selector(starTapped(_:)), for: .touchUpInside)
-            starsView.addSubview(button)
-        }
-    }
-    
-    @objc func starTapped(_ sender: UIButton) {
-        userRating = sender.tag
-        updateStarDisplay()
-        
-        let generator = UIImpactFeedbackGenerator(style: .light)
-        generator.impactOccurred()
-    }
-    
-    func updateStarDisplay() {
-        for view in starsView.subviews {
-            if let button = view as? UIButton {
-                let starIndex = button.tag
-                if starIndex <= userRating {
-                    button.setImage(UIImage(systemName: "star.fill"), for: .normal)
-                } else {
-                    button.setImage(UIImage(systemName: "star"), for: .normal)
-                }
-            }
-        }
-    }
-
-    // MARK: - GOOGLE PLACES DATA
-    func fetchGooglePlacesData(for restaurant: Restaurant) {
-        let apiKey = "dd319a412e42c0260813f3ed7c1a72666c0de0f9d1b0197b7ae8fa39f08a6e40"
-        let location = restaurant.location.isEmpty ? "Austin, TX" : restaurant.location
-        let query = "\(restaurant.name) \(location)"
-        let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
-        let urlString = "https://serpapi.com/search.json?engine=google_maps&q=\(encodedQuery)&type=place&api_key=\(apiKey)"
-
-        guard let url = URL(string: urlString) else { return }
-
-        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-            guard let self = self else { return }
-            
-            if let error = error {
-                print("Error fetching Google Places: \(error)")
-                return
+            button.setTitle(content, for: .normal)
+            button.titleLabel?.font = UIFont.systemFont(ofSize: 15, weight: .medium)
+            button.setTitleColor(UIColor.systemOrange, for: .normal)
+            button.contentHorizontalAlignment = .left
+            button.translatesAutoresizingMaskIntoConstraints = false
+            if let action = action {
+                button.addTarget(self, action: action, for: .touchUpInside)
             }
             
-            guard let data = data else { return }
+            cardView.addSubview(button)
             
-            do {
-                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                   let placeResults = json["place_results"] as? [String: Any] {
-
-                    let rating = placeResults["rating"] as? Double ?? 0.0
-                    let website = placeResults["website"] as? String
-                    let description = placeResults["description"] as? String ?? restaurant.cuisine
-                    let openState = placeResults["open_state"] as? String ?? "Hours not available"
-                    let address = placeResults["address"] as? String ?? restaurant.location
-                    let phone = placeResults["phone"] as? String
-                    self.phoneNumber = phone
-                    
-                    // Get detailed hours
-                    var hoursText = openState
-                    if let hours = placeResults["hours"] as? [[String: Any]] {
-                        var hoursList: [String] = []
-                        for day in hours {
-                            if let dayName = day["day"] as? String,
-                               let hoursString = day["hours"] as? String {
-                                hoursList.append("\(dayName): \(hoursString)")
-                            }
-                        }
-                        if !hoursList.isEmpty {
-                            hoursText = hoursList.joined(separator: "\n")
-                        }
-                    }
-                    
-                    // Build info section with website URL
-                    var infoDetails: [String] = []
-                    infoDetails.append("📍 ADDRESS\n\(address)\n")
-                    if let phone = phone {
-                        infoDetails.append("📞 PHONE\n\(phone)\n")
-                    }
-                    infoDetails.append("⏰ HOURS\n\(hoursText)")
-                    
-                    if let website = website {
-                        infoDetails.append("\n\n🌐 WEBSITE\n\(website)")
-                        self.websiteURL = website
-                    }
-                    
-                    // Check for menu
-                    if let menu = placeResults["menu"] as? [String: Any],
-                       let menuLink = menu["link"] as? String {
-                        self.menuItems = "🍽️ VIEW MENU\n\n\(menuLink)\n\nTap the link above or use the Call button below to contact the restaurant for menu details."
-                    }
-                    
-                    // Get reviews
-                    if let userReviews = (placeResults["user_reviews"] as? [String: Any])?["summary"] as? [[String: Any]] {
-                        let topReviews = userReviews.prefix(3).compactMap { review -> String? in
-                            guard let snippet = review["snippet"] as? String,
-                                  let rating = review["rating"] as? Double else { return nil }
-                            let stars = String(repeating: "⭐️", count: Int(rating))
-                            return "\(stars)\n\(snippet)"
-                        }
-                        if !topReviews.isEmpty {
-                            self.reviewsText = "📝 TOP REVIEWS\n\n" + topReviews.joined(separator: "\n\n---\n\n")
-                        }
-                    }
-                    
-                    DispatchQueue.main.async {
-                        // Update description with cuisine and address
-                        var descriptionText = description
-                        if !address.isEmpty && address != self.restaurant?.location {
-                            descriptionText += "\n📍 \(address)"
-                        }
-                        self.descriptionLabel.text = descriptionText
-                        
-                        self.infoText = infoDetails.joined(separator: "\n")
-                        
-                        if self.segmentedControl.selectedSegmentIndex == 0 {
-                            self.infoTextView.text = self.menuItems
-                        } else if self.segmentedControl.selectedSegmentIndex == 2 {
-                            self.infoTextView.text = self.infoText
-                        }
-                        
-                        self.loadingIndicator.stopAnimating()
-                    }
-                }
-            } catch {
-                print("Google Places JSON error: \(error)")
-            }
-        }.resume()
-    }
-
-    // MARK: - YELP DATA
-    func fetchYelpData(for restaurant: Restaurant) {
-        let apiKey = "dd319a412e42c0260813f3ed7c1a72666c0de0f9d1b0197b7ae8fa39f08a6e40"
-        let location = restaurant.location.isEmpty ? "Austin, TX" : restaurant.location
-        let query = "\(restaurant.name) \(location)"
-        let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
-        
-        let urlString = "https://serpapi.com/search.json?engine=yelp&find_desc=\(encodedQuery)&find_loc=Austin,TX&api_key=\(apiKey)"
-        
-        guard let url = URL(string: urlString) else { return }
-        
-        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-            guard let self = self else { return }
-            
-            guard let data = data,
-                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let organicResults = json["organic_results"] as? [[String: Any]],
-                  let firstResult = organicResults.first else {
-                return
-            }
-            
-            if let link = firstResult["link"] as? String {
-                self.yelpURL = link
+            NSLayoutConstraint.activate([
+                titleLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 16),
+                titleLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -16),
                 
-                // Add Yelp URL to info if no website URL exists
-                DispatchQueue.main.async {
-                    if self.websiteURL == nil {
-                        var currentInfo = self.infoText
-                        currentInfo += "\n\n🌐 YELP PAGE\n\(link)"
-                        self.infoText = currentInfo
-                        
-                        if self.segmentedControl.selectedSegmentIndex == 2 {
-                            self.infoTextView.text = self.infoText
-                        }
-                    }
-                }
-            }
+                button.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
+                button.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 16),
+                button.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -16),
+                button.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -14)
+            ])
+        } else {
+            let contentLabel = UILabel()
+            contentLabel.text = content
+            contentLabel.font = UIFont.systemFont(ofSize: 15)
+            contentLabel.textColor = UIColor(red: 0.23, green: 0.23, blue: 0.21, alpha: 1)
+            contentLabel.numberOfLines = 0
+            contentLabel.translatesAutoresizingMaskIntoConstraints = false
             
-            if let placeIDs = firstResult["place_ids"] as? [String],
-               let placeID = placeIDs.first {
-                self.fetchYelpPlaceDetails(placeID: placeID)
-            }
-        }.resume()
+            cardView.addSubview(contentLabel)
+            
+            NSLayoutConstraint.activate([
+                titleLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 16),
+                titleLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -16),
+                
+                contentLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
+                contentLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 16),
+                contentLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -16),
+                contentLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -14)
+            ])
+        }
+        
+        return cardView
     }
     
-    func fetchYelpPlaceDetails(placeID: String) {
-        let apiKey = "dd319a412e42c0260813f3ed7c1a72666c0de0f9d1b0197b7ae8fa39f08a6e40"
-        let urlString = "https://serpapi.com/search.json?engine=yelp_place&place_id=\(placeID)&api_key=\(apiKey)"
-        
-        guard let url = URL(string: urlString) else { return }
-        
-        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
-            guard let self = self,
-                  let data = data,
-                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                return
-            }
-            
-            // Extract menu if available
-            if let fullMenuLink = json["full_menu"] as? String {
+    // Downloads and displays the restaurant image from a URL
+    private func loadImage(from url: URL) {
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            if let data = data, let image = UIImage(data: data) {
                 DispatchQueue.main.async {
-                    if self.menuItems.contains("No menu information available") {
-                        self.menuItems = "🍽️ VIEW MENU\n\n\(fullMenuLink)\n\nTap the link above or use the Call button below to contact the restaurant for menu details."
-                        if self.segmentedControl.selectedSegmentIndex == 0 {
-                            self.infoTextView.text = self.menuItems
-                        }
-                    }
-                }
-            }
-            
-            // Extract reviews
-            if let reviews = json["reviews"] as? [[String: Any]], !reviews.isEmpty {
-                var reviewStrings: [String] = []
-                for review in reviews.prefix(3) {
-                    if let user = review["user"] as? [String: Any],
-                       let userName = user["name"] as? String,
-                       let comment = review["comment"] as? [String: Any],
-                       let text = comment["text"] as? String,
-                       let rating = review["rating"] as? Int {
-                        
-                        let stars = String(repeating: "⭐️", count: rating)
-                        reviewStrings.append("\(stars) \(userName)\n\(text)")
-                    }
-                }
-                if !reviewStrings.isEmpty {
-                    DispatchQueue.main.async {
-                        if self.reviewsText.contains("No reviews available") {
-                            self.reviewsText = "📝 YELP REVIEWS\n\n" + reviewStrings.joined(separator: "\n\n---\n\n")
-                            if self.segmentedControl.selectedSegmentIndex == 1 {
-                                self.infoTextView.text = self.reviewsText
-                            }
-                        }
-                    }
+                    self.restaurantImageView.image = image
                 }
             }
         }.resume()
     }
     
-    @objc func shareButtonTapped() {
+    // Converts 24-hour time format for restaurant timing if available (doesn't show up right now because of API, will fix for Final)
+    private func formatTime(_ time: String) -> String {
+        guard time.count == 4,
+              let hour = Int(time.prefix(2)),
+              let minute = Int(time.suffix(2)) else {
+            return time
+        }
+        
+        let isPM = hour >= 12
+        let displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour)
+        let period = isPM ? "PM" : "AM"
+        return String(format: "%d:%02d %@", displayHour, minute, period)
+    }
+    
+    // MARK: - Actions
+    
+    // Toggles favorite status and animates the heart button
+    @objc private func shareButtonTapped() {
         isFavorite.toggle()
         
-        // Animate and change icon
         UIView.animate(withDuration: 0.2) {
             self.shareButton.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
         } completion: { _ in
@@ -575,17 +686,36 @@ class RestaurantInfoViewController: UIViewController {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
     }
-
-    @objc func segmentedControlChanged(_ sender: UISegmentedControl) {
+    
+    // Handles segmented control changes to switch between Menu, Reviews, and Info
+    @objc private func segmentedControlChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
-        case 0: infoTextView.text = menuItems
-        case 1: infoTextView.text = reviewsText
-        case 2: infoTextView.text = infoText
-        default: break
+        case 0: // Menu
+            menuTextView.isHidden = false
+            reviewsStackView.isHidden = true
+            infoStackView.isHidden = true
+            contentContainerTopConstraint.constant = 8
+        case 1: // Reviews
+            menuTextView.isHidden = true
+            reviewsStackView.isHidden = false
+            infoStackView.isHidden = true
+            contentContainerTopConstraint.constant = 8
+        case 2: // Info
+            menuTextView.isHidden = true
+            reviewsStackView.isHidden = true
+            infoStackView.isHidden = false
+            contentContainerTopConstraint.constant = 8
+        default:
+            break
+        }
+        
+        UIView.animate(withDuration: 0.2) {
+            self.view.layoutIfNeeded()
         }
     }
     
-    @objc func openDirections() {
+    // Opens Apple Maps with directions to the restaurant - may change if implementing directional map into app
+    @objc private func openDirections() {
         guard let restaurant = restaurant else { return }
         let address = restaurant.location.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         let urlString = "http://maps.apple.com/?daddr=\(address)"
@@ -595,7 +725,8 @@ class RestaurantInfoViewController: UIViewController {
         }
     }
     
-    @objc func callRestaurant() {
+    // Initiates a phone call to the restaurant
+    @objc private func callRestaurant() {
         guard let phone = phoneNumber else {
             let alert = UIAlertController(title: "No Phone Number", message: "This restaurant doesn't have a phone number listed.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -608,14 +739,212 @@ class RestaurantInfoViewController: UIViewController {
             UIApplication.shared.open(url)
         }
     }
+    
+    // Opens the restaurant's Yelp page in Safari
+    @objc private func openYelpPage() {
+        guard let yelpURL = yelpURL, let url = URL(string: yelpURL) else { return }
+        UIApplication.shared.open(url)
+    }
+    
+    // MARK: - API Integration
+    
+    // Initiates Yelp search to fetch restaurant data
+    private func fetchYelpData(for restaurant: Restaurant) {
+        let apiKey = "82d6e2c51201426737573e6ea30569f9db91afcd7bed48520ce651746eb88a6d"
+        let location = restaurant.location.isEmpty ? "Austin, TX" : restaurant.location
+        let query = "\(restaurant.name) \(location)"
+        let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
+        
+        let urlString = "https://serpapi.com/search.json?engine=yelp&find_desc=\(encodedQuery)&find_loc=Austin,TX&api_key=\(apiKey)"
+        
+        guard let url = URL(string: urlString) else { return }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            guard let self = self,
+                  let data = data,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                return
+            }
+            
+            self.processYelpSearchData(json, for: restaurant)
+        }.resume()
+    }
+    
+    // Processes Yelp search results and pull rating, reviews, and place ID
+    private func processYelpSearchData(_ json: [String: Any], for restaurant: Restaurant) {
+        guard let organicResults = json["organic_results"] as? [[String: Any]],
+              let firstResult = organicResults.first else {
+            return
+        }
+        
+        if let rating = firstResult["rating"] as? Double {
+            self.averageRating = rating
+            DispatchQueue.main.async {
+                self.updateStarsDisplay()
+            }
+        }
+        
+        if let reviews = firstResult["reviews"] as? Int {
+            self.reviewCount = reviews
+            DispatchQueue.main.async {
+                self.updateStarsDisplay()
+            }
+        }
+        
+        if let phone = firstResult["phone"] as? String {
+            self.phoneNumber = phone
+        }
+        
+        if let link = firstResult["link"] as? String {
+            self.yelpURL = link
+            DispatchQueue.main.async {
+                self.updateInfoDisplay()
+            }
+        }
+        
+        if let placeIDs = firstResult["place_ids"] as? [String],
+           let placeID = placeIDs.first {
+            self.fetchYelpPlaceDetails(placeID: placeID, for: restaurant)
+        }
+    }
+    
+    // Fetches detailed place information and reviews from Yelp
+    private func fetchYelpPlaceDetails(placeID: String, for restaurant: Restaurant) {
+        let apiKey = "82d6e2c51201426737573e6ea30569f9db91afcd7bed48520ce651746eb88a6d"
+        
+        let placeURL = "https://serpapi.com/search.json?engine=yelp_place&place_id=\(placeID)&api_key=\(apiKey)"
+        
+        if let url = URL(string: placeURL) {
+            URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+                guard let self = self,
+                      let data = data,
+                      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                    return
+                }
+                
+                self.processYelpPlaceData(json, for: restaurant)
+            }.resume()
+        }
+        
+        let reviewsURL = "https://serpapi.com/search.json?engine=yelp_reviews&place_id=\(placeID)&api_key=\(apiKey)"
+        
+        guard let url = URL(string: reviewsURL) else { return }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, response, error in
+            guard let self = self,
+                  let data = data,
+                  let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                return
+            }
+            
+            self.processYelpReviewsData(json, for: restaurant)
+        }.resume()
+    }
 
-    func loadImage(from url: URL) {
-        URLSession.shared.dataTask(with: url) { data, _, _ in
-            if let data = data, let image = UIImage(data: data) {
-                DispatchQueue.main.async {
-                    self.restaurantImageView.image = image
+    // Processes place details including address, phone, hours, and menu
+    private func processYelpPlaceData(_ json: [String: Any], for restaurant: Restaurant) {
+        if let address = json["address"] as? String {
+            self.restaurantAddress = address
+        } else if let location = json["location"] as? [String: Any] {
+            var addressParts: [String] = []
+            if let address1 = location["address1"] as? String { addressParts.append(address1) }
+            if let city = location["city"] as? String,
+               let state = location["state"] as? String,
+               let zipCode = location["zip_code"] as? String {
+                addressParts.append("\(city), \(state) \(zipCode)")
+            }
+            if !addressParts.isEmpty {
+                self.restaurantAddress = addressParts.joined(separator: "\n")
+            }
+        }
+        
+        if let phone = json["phone"] as? String ?? json["display_phone"] as? String {
+            self.phoneNumber = phone
+        }
+        
+        if let hours = json["hours"] as? [[String: Any]], !hours.isEmpty {
+            var hoursText = ""
+            if let regularHours = hours.first?["open"] as? [[String: Any]] {
+                for day in regularHours {
+                    if let dayNum = day["day"] as? Int,
+                       let start = day["start"] as? String,
+                       let end = day["end"] as? String {
+                        let dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+                        let dayName = dayNum < dayNames.count ? dayNames[dayNum] : "Day \(dayNum)"
+                        
+                        let startFormatted = formatTime(start)
+                        let endFormatted = formatTime(end)
+                        hoursText += "\(dayName): \(startFormatted) - \(endFormatted)\n"
+                    }
                 }
             }
-        }.resume()
+            if !hoursText.isEmpty {
+                self.restaurantHours = hoursText.trimmingCharacters(in: .newlines)
+            }
+        }
+        
+        var menuLink: String?
+        if let menuDict = json["menu"] as? [String: Any] {
+            menuLink = menuDict["url"] as? String ?? menuDict["link"] as? String
+        } else if let menuURL = json["menu_url"] as? String {
+            menuLink = menuURL
+        }
+        
+        if let menuLink = menuLink {
+            DispatchQueue.main.async {
+                self.menuItems = "VIEW MENU\n\n\(menuLink)\n\nTap the link above or use the Call button to contact the restaurant for menu details."
+                self.menuTextView.text = self.menuItems
+            }
+        }
+        
+        DispatchQueue.main.async {
+            self.updateInfoDisplay()
+        }
+    }
+    
+    private func processYelpReviewsData(_ json: [String: Any], for restaurant: Restaurant) {
+        if let reviews = json["reviews"] as? [[String: Any]], !reviews.isEmpty {
+            var reviewsArray: [[String: Any]] = []
+            
+            for review in reviews.prefix(3) {
+                var reviewDict: [String: Any] = [:]
+                
+                if let rating = review["rating"] as? Int {
+                    reviewDict["rating"] = rating
+                } else if let rating = review["rating"] as? Double {
+                    reviewDict["rating"] = Int(rating)
+                }
+                
+                if let user = review["user"] as? [String: Any],
+                   let userName = user["name"] as? String {
+                    reviewDict["userName"] = userName
+                }
+                
+                var commentText = ""
+                if let comment = review["comment"] as? [String: Any],
+                   let text = comment["text"] as? String {
+                    commentText = text
+                } else if let text = review["text"] as? String {
+                    commentText = text
+                } else if let excerpt = review["excerpt"] as? String {
+                    commentText = excerpt
+                }
+                
+                if !commentText.isEmpty {
+                    reviewDict["text"] = commentText
+                }
+                
+                if !reviewDict.isEmpty {
+                    reviewsArray.append(reviewDict)
+                }
+            }
+            
+            if !reviewsArray.isEmpty {
+                self.reviewsData = reviewsArray
+                DispatchQueue.main.async {
+                    self.updateReviewsDisplay()
+                }
+            }
+        }
     }
 }

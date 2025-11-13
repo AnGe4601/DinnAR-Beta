@@ -73,7 +73,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     // MARK: - SerpAPI Integration
     func fetchRestaurants(query: String) {
-        let apiKey = "dd319a412e42c0260813f3ed7c1a72666c0de0f9d1b0197b7ae8fa39f08a6e40"
+        let apiKey = "82d6e2c51201426737573e6ea30569f9db91afcd7bed48520ce651746eb88a6d"
         let fullQuery = "\(query) in Austin, TX"
         let encodedQuery = fullQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? fullQuery
         let urlString = "https://serpapi.com/search.json?engine=google_local&q=\(encodedQuery)&api_key=\(apiKey)"
@@ -122,7 +122,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     }
                     
                     var fetchedRestaurants: [Restaurant] = []
-                    for item in results.prefix(5) {
+                    for item in results.prefix(6) {
                         let name = item["title"] as? String ?? "Unknown"
                         let cuisine = item["type"] as? String ?? "Restaurant"
                         let rating = item["rating"] as? Double ?? 0.0
