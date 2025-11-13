@@ -131,12 +131,7 @@ class RestaurantInfoViewController: UIViewController {
             nameLabel.trailingAnchor.constraint(equalTo: restaurantImageView.trailingAnchor, constant: -60)
         ])
         
-        // Favorite + Friend icons
-        let friendIconView = UIImageView(image: UIImage(systemName: "person.2.fill"))
-        friendIconView.tintColor = UIColor(red: 0xBA/255.0, green: 0x39/255.0, blue: 0x02/255.0, alpha: 1.0) // same orange tone
-        friendIconView.contentMode = .scaleAspectFit
-        friendIconView.translatesAutoresizingMaskIntoConstraints = false
-
+        // Favorite icon
         shareButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
         shareButton.tintColor = UIColor(red: 0xBA/255.0, green: 0x39/255.0, blue: 0x02/255.0, alpha: 1.0)
         shareButton.backgroundColor = UIColor(red: 0xBA/255.0, green: 0x39/255.0, blue: 0x02/255.0, alpha: 0.15)
@@ -144,22 +139,12 @@ class RestaurantInfoViewController: UIViewController {
         shareButton.translatesAutoresizingMaskIntoConstraints = false
         shareButton.addTarget(self, action: #selector(shareButtonTapped), for: .touchUpInside)
 
-        // Stack both icons horizontally
-        let iconStack = UIStackView(arrangedSubviews: [friendIconView, shareButton])
-        iconStack.axis = .horizontal
-        iconStack.spacing = 8
-        iconStack.alignment = .center
-        iconStack.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(iconStack)
+        contentView.addSubview(shareButton)
 
         // Layout constraints for icon stack
         NSLayoutConstraint.activate([
-            iconStack.topAnchor.constraint(equalTo: nameLabel.topAnchor),
-            iconStack.trailingAnchor.constraint(equalTo: restaurantImageView.trailingAnchor),
-
-            friendIconView.widthAnchor.constraint(equalToConstant: 28),
-            friendIconView.heightAnchor.constraint(equalToConstant: 28),
-
+            shareButton.topAnchor.constraint(equalTo: nameLabel.topAnchor),
+            shareButton.trailingAnchor.constraint(equalTo: restaurantImageView.trailingAnchor),
             shareButton.widthAnchor.constraint(equalToConstant: 44),
             shareButton.heightAnchor.constraint(equalToConstant: 44)
         ])

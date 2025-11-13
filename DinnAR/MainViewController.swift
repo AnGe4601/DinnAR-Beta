@@ -52,7 +52,7 @@ class MainViewController: UIViewController {
         case 1:
             break // Already on Favorites
         case 2:
-            let vc = storyboard?.instantiateViewController(withIdentifier: "FriendsViewController") as! FriendsViewController
+            let vc = storyboard?.instantiateViewController(withIdentifier: "MapViewController") as!MapViewController
             vc.modalPresentationStyle = .fullScreen
             present(vc, animated: false)
         case 3:

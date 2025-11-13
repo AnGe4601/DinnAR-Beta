@@ -25,7 +25,7 @@ class SettingViewController: UIViewController {
             vc.modalPresentationStyle = .fullScreen
             present(vc, animated: false)
         case 2:
-            if let vc = storyboard?.instantiateViewController(withIdentifier: "FriendsViewController") as? FriendsViewController {
+            if let vc = storyboard?.instantiateViewController(withIdentifier: "MapViewController") as? MapViewController {
                 vc.modalPresentationStyle = .fullScreen
                 present(vc, animated: false)
             } else {

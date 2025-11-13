@@ -19,13 +19,14 @@ class RecommendationCell: UITableViewCell {
     
     @IBOutlet weak var heartButton: UIButton!
     
+    weak var delegate: RecommendationCellDelegate?
     var restaurant: Restaurant? {
         didSet {
             updateHeartIcon()
             updateLabels()
         }
     }
-    weak var delegate: RecommendationCellDelegate?
+    private var currentImageURL: String?
     
     func updateLabels() {
         guard let restaurant = restaurant else { return } // safe unwrap
@@ -99,6 +100,8 @@ class RecommendationCell: UITableViewCell {
         if let urlString = restaurant.imageURL,
            let url = URL(string: urlString),
            urlString.starts(with: "http") {
+            
+            currentImageURL = urlString
             
             URLSession.shared.dataTask(with: url) { data, _, error in
                 guard let data = data, error == nil,
