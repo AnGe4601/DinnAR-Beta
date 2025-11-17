@@ -821,17 +821,36 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <searchBar contentMode="redraw" fixedFrame="YES" searchBarStyle="minimal" translatesAutoresizingMaskIntoConstraints="NO" id="V2H-0I-SaJ">
-                                <rect key="frame" x="-1" y="114" width="393" height="56"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <searchBar contentMode="redraw" searchBarStyle="minimal" translatesAutoresizingMaskIntoConstraints="NO" id="V2H-0I-SaJ">
+                                <rect key="frame" x="0.0" y="79" width="393" height="56"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="393" id="rAU-rR-rZt"/>
+                                    <constraint firstAttribute="height" constant="56" id="yaE-P7-CzX"/>
+                                </constraints>
                                 <color key="barTintColor" red="0.99215686270000003" green="0.96862745100000003" blue="0.94117647059999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <textInputTraits key="textInputTraits"/>
                             </searchBar>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="ipD-vn-W8d">
+                                <rect key="frame" x="16" y="790" width="361" height="45"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="YkN-9h-Qlr"/>
+                                </constraints>
+                                <segments>
+                                    <segment title="" image="house" catalog="system"/>
+                                    <segment title="" image="heart" catalog="system"/>
+                                    <segment title="" image="map" catalog="system"/>
+                                    <segment title="" image="gearshape" catalog="system"/>
+                                </segments>
+                                <color key="tintColor" name="ButtonColor"/>
+                                <connections>
+                                    <action selector="segmentChanged:" destination="k9R-jK-a34" eventType="valueChanged" id="mF4-jA-z5B"/>
+                                </connections>
+                            </segmentedControl>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="5p0-Gk-gXy">
-                                <rect key="frame" x="16" y="189" width="361" height="575"/>
+                                <rect key="frame" x="16" y="156" width="361" height="575"/>
                                 <color key="backgroundColor" red="0.99215686270000003" green="0.96862745100000003" blue="0.94117647059999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="350" id="08o-gH-YWu"/>
+                                    <constraint firstAttribute="height" constant="525" id="08o-gH-YWu"/>
                                 </constraints>
                                 <color key="separatorColor" red="0.99215686270000003" green="0.96862745100000003" blue="0.94117647059999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <color key="sectionIndexBackgroundColor" red="0.99215686270000003" green="0.96862745100000003" blue="0.94117647059999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -925,37 +944,26 @@
                                 <sections/>
                             </tableView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Recommendations" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="K8z-c8-er8">
-                                <rect key="frame" x="16" y="177" width="149" height="21"/>
+                                <rect key="frame" x="16" y="122" width="149" height="67"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="ipD-vn-W8d">
-                                <rect key="frame" x="16" y="790" width="361" height="45"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="44" id="YkN-9h-Qlr"/>
-                                </constraints>
-                                <segments>
-                                    <segment title="" image="house" catalog="system"/>
-                                    <segment title="" image="heart" catalog="system"/>
-                                    <segment title="" image="map" catalog="system"/>
-                                    <segment title="" image="gearshape" catalog="system"/>
-                                </segments>
-                                <color key="tintColor" name="ButtonColor"/>
-                                <connections>
-                                    <action selector="segmentChanged:" destination="k9R-jK-a34" eventType="valueChanged" id="mF4-jA-z5B"/>
-                                </connections>
-                            </segmentedControl>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="4ZG-U0-vQG"/>
                         <color key="backgroundColor" red="0.99215686270000003" green="0.96862745100000003" blue="0.94117647059999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="5p0-Gk-gXy" firstAttribute="top" secondItem="K8z-c8-er8" secondAttribute="bottom" constant="8" symbolic="YES" id="4iQ-pb-BfH"/>
+                            <constraint firstItem="V2H-0I-SaJ" firstAttribute="top" secondItem="4ZG-U0-vQG" secondAttribute="top" constant="20" id="3HH-61-19O"/>
+                            <constraint firstItem="5p0-Gk-gXy" firstAttribute="top" secondItem="K8z-c8-er8" secondAttribute="bottom" constant="-22" id="4iQ-pb-BfH"/>
                             <constraint firstItem="5p0-Gk-gXy" firstAttribute="leading" secondItem="ipD-vn-W8d" secondAttribute="leading" id="7qt-dd-vj6"/>
                             <constraint firstItem="5p0-Gk-gXy" firstAttribute="leading" secondItem="K8z-c8-er8" secondAttribute="leading" id="UFP-LV-3b2"/>
                             <constraint firstItem="4ZG-U0-vQG" firstAttribute="trailing" secondItem="ipD-vn-W8d" secondAttribute="trailing" constant="16" id="Udu-KW-MLp"/>
                             <constraint firstItem="5p0-Gk-gXy" firstAttribute="trailing" secondItem="ipD-vn-W8d" secondAttribute="trailing" id="exq-tW-8wc"/>
-                            <constraint firstItem="ipD-vn-W8d" firstAttribute="top" secondItem="5p0-Gk-gXy" secondAttribute="bottom" constant="251" id="gMv-ge-9Go"/>
+                            <constraint firstItem="ipD-vn-W8d" firstAttribute="top" secondItem="5p0-Gk-gXy" secondAttribute="bottom" constant="45" id="gMv-ge-9Go"/>
+                            <constraint firstItem="V2H-0I-SaJ" firstAttribute="leading" secondItem="D9K-4N-m3v" secondAttribute="leading" id="j6m-FI-8zC"/>
+                            <constraint firstItem="K8z-c8-er8" firstAttribute="top" secondItem="V2H-0I-SaJ" secondAttribute="bottom" constant="5" id="nEM-r2-XnL"/>
+                            <constraint firstItem="4ZG-U0-vQG" firstAttribute="trailing" secondItem="V2H-0I-SaJ" secondAttribute="trailing" id="ngt-CJ-ku5"/>
+                            <constraint firstItem="V2H-0I-SaJ" firstAttribute="top" secondItem="4ZG-U0-vQG" secondAttribute="top" constant="20" id="t9e-fF-6Ua"/>
                             <constraint firstItem="ipD-vn-W8d" firstAttribute="bottom" secondItem="4ZG-U0-vQG" secondAttribute="bottom" constant="16" id="tKF-Ge-bzL"/>
                             <constraint firstItem="ipD-vn-W8d" firstAttribute="leading" secondItem="4ZG-U0-vQG" secondAttribute="leading" constant="16" id="uai-hR-BRK"/>
                         </constraints>
