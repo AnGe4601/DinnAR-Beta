@@ -63,8 +63,8 @@
                                     <segue destination="6dh-l3-CGy" kind="show" id="yuH-Bk-12U"/>
                                 </connections>
                             </button>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="UQg-Yi-Coc">
-                                <rect key="frame" x="16" y="792" width="361" height="45"/>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="UQg-Yi-Coc">
+                                <rect key="frame" x="16" y="790" width="361" height="45"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="N24-63-M4x"/>
                                 </constraints>
@@ -148,8 +148,8 @@
                                 <rect key="frame" x="0.0" y="118" width="393" height="666"/>
                                 <standardMapConfiguration key="preferredConfiguration"/>
                             </mapView>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="VMz-hx-5AF">
-                                <rect key="frame" x="16" y="792" width="361" height="45"/>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="VMz-hx-5AF">
+                                <rect key="frame" x="16" y="790" width="361" height="45"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="DPy-7C-6Kx"/>
                                 </constraints>
@@ -1004,8 +1004,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="oxs-Qh-DX9">
-                                <rect key="frame" x="16" y="792" width="361" height="45"/>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="oxs-Qh-DX9">
+                                <rect key="frame" x="16" y="790" width="361" height="45"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="SB2-BC-iXz"/>
                                 </constraints>
@@ -1167,13 +1167,13 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="WoU-Q9-ue8"/>
+        <segue reference="aJn-QC-OtN"/>
         <segue reference="6xi-mD-C1Z"/>
         <segue reference="7Mt-S6-RLh"/>
         <segue reference="zXG-jN-EaD"/>
         <segue reference="sgT-Aq-O96"/>
         <segue reference="3I2-vN-3nT"/>
-        <segue reference="fef-wa-HbF"/>
+        <segue reference="yuH-Bk-12U"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="Screenshot 2025-10-21 at 6.05.04 PM" width="402" height="233"/>
