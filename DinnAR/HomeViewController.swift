@@ -151,6 +151,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     }
                     
                     DispatchQueue.main.async {
+                        ResturantDataManager.shared.fetchedRestaurants = fetchedRestaurants
                         self.recommendations = fetchedRestaurants
                         self.tableView.reloadData()
                     }
