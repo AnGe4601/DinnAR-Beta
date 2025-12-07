@@ -430,7 +430,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Next"/>
                                 <connections>
-                                    <segue destination="bR0-RZ-IHm" kind="presentation" identifier="toCuisineSI" modalPresentationStyle="fullScreen" id="ohV-Sr-Nqe"/>
+                                    <segue destination="bR0-RZ-IHm" kind="presentation" identifier="ToCuisineVCSI" modalPresentationStyle="fullScreen" id="ohV-Sr-Nqe"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Tell us what you " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zPb-53-9qn">
@@ -527,6 +527,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Next"/>
                                 <connections>
+                                    <action selector="nextButtonTapped:" destination="tci-wS-IOU" eventType="touchUpInside" id="cOo-T3-qR4"/>
                                     <segue destination="wuE-E9-25J" kind="presentation" identifier="toDistanceSI" modalPresentationStyle="fullScreen" id="JbM-Ih-KNp"/>
                                 </connections>
                             </button>
@@ -537,6 +538,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Back"/>
                                 <connections>
+                                    <action selector="backButtonTapped:" destination="tci-wS-IOU" eventType="touchUpInside" id="1By-X4-ccE"/>
                                     <segue destination="bR0-RZ-IHm" kind="presentation" identifier="backToCuisineSI" modalPresentationStyle="fullScreen" id="zXG-jN-EaD"/>
                                 </connections>
                             </button>
@@ -622,7 +624,8 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Next"/>
                                 <connections>
-                                    <segue destination="tci-wS-IOU" kind="presentation" modalPresentationStyle="fullScreen" id="HbA-YP-E1C"/>
+                                    <action selector="nextButtonTapped:" destination="bR0-RZ-IHm" eventType="touchUpInside" id="hdd-PG-FVX"/>
+                                    <segue destination="tci-wS-IOU" kind="presentation" identifier="ToRestaurantTypeVC" modalPresentationStyle="fullScreen" id="HbA-YP-E1C"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -785,6 +788,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Ready?"/>
                                 <connections>
+                                    <action selector="readyButtonTapped:" destination="Way-Ub-PHB" eventType="touchUpInside" id="Bpl-SL-7lj"/>
                                     <segue destination="k9R-jK-a34" kind="presentation" identifier="toMain" id="6xi-mD-C1Z"/>
                                 </connections>
                             </button>
@@ -795,6 +799,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Back"/>
                                 <connections>
+                                    <action selector="backButtonTapped:" destination="Way-Ub-PHB" eventType="touchUpInside" id="rYM-m6-AYk"/>
                                     <segue destination="wuE-E9-25J" kind="presentation" identifier="backToPriximitySI" modalPresentationStyle="fullScreen" id="7Mt-S6-RLh"/>
                                 </connections>
                             </button>
@@ -824,8 +829,8 @@
                             <searchBar contentMode="redraw" searchBarStyle="minimal" translatesAutoresizingMaskIntoConstraints="NO" id="V2H-0I-SaJ">
                                 <rect key="frame" x="0.0" y="79" width="393" height="56"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="393" id="rAU-rR-rZt"/>
-                                    <constraint firstAttribute="height" constant="56" id="yaE-P7-CzX"/>
+                                    <constraint firstAttribute="height" constant="56" id="RUO-nR-3Po"/>
+                                    <constraint firstAttribute="width" constant="393" id="wc5-Xc-UEM"/>
                                 </constraints>
                                 <color key="barTintColor" red="0.99215686270000003" green="0.96862745100000003" blue="0.94117647059999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <textInputTraits key="textInputTraits"/>
@@ -846,11 +851,12 @@
                                     <action selector="segmentChanged:" destination="k9R-jK-a34" eventType="valueChanged" id="mF4-jA-z5B"/>
                                 </connections>
                             </segmentedControl>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="5p0-Gk-gXy">
-                                <rect key="frame" x="16" y="156" width="361" height="575"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="5p0-Gk-gXy">
+                                <rect key="frame" x="16" y="205" width="361" height="538"/>
                                 <color key="backgroundColor" red="0.99215686270000003" green="0.96862745100000003" blue="0.94117647059999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="525" id="08o-gH-YWu"/>
+                                    <constraint firstAttribute="width" constant="361" id="HRb-YS-Oah"/>
+                                    <constraint firstAttribute="height" constant="538" id="RML-NS-IxC"/>
                                 </constraints>
                                 <color key="separatorColor" red="0.99215686270000003" green="0.96862745100000003" blue="0.94117647059999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <color key="sectionIndexBackgroundColor" red="0.99215686270000003" green="0.96862745100000003" blue="0.94117647059999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -944,7 +950,11 @@
                                 <sections/>
                             </tableView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Recommendations" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="K8z-c8-er8">
-                                <rect key="frame" x="16" y="122" width="149" height="67"/>
+                                <rect key="frame" x="16" y="150" width="149" height="67"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="67" id="nvW-PC-fB8"/>
+                                    <constraint firstAttribute="width" constant="149" id="vJ7-2R-7rJ"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -953,19 +963,25 @@
                         <viewLayoutGuide key="safeArea" id="4ZG-U0-vQG"/>
                         <color key="backgroundColor" red="0.99215686270000003" green="0.96862745100000003" blue="0.94117647059999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="V2H-0I-SaJ" firstAttribute="top" secondItem="4ZG-U0-vQG" secondAttribute="top" constant="20" id="3HH-61-19O"/>
-                            <constraint firstItem="5p0-Gk-gXy" firstAttribute="top" secondItem="K8z-c8-er8" secondAttribute="bottom" constant="-22" id="4iQ-pb-BfH"/>
-                            <constraint firstItem="5p0-Gk-gXy" firstAttribute="leading" secondItem="ipD-vn-W8d" secondAttribute="leading" id="7qt-dd-vj6"/>
-                            <constraint firstItem="5p0-Gk-gXy" firstAttribute="leading" secondItem="K8z-c8-er8" secondAttribute="leading" id="UFP-LV-3b2"/>
+                            <constraint firstItem="V2H-0I-SaJ" firstAttribute="trailing" secondItem="4ZG-U0-vQG" secondAttribute="trailing" id="20G-du-JHp"/>
+                            <constraint firstItem="4ZG-U0-vQG" firstAttribute="trailing" secondItem="K8z-c8-er8" secondAttribute="trailing" constant="228" id="9hY-mD-7ae"/>
+                            <constraint firstItem="K8z-c8-er8" firstAttribute="top" secondItem="V2H-0I-SaJ" secondAttribute="bottom" constant="7" id="9zV-Jl-wem"/>
+                            <constraint firstItem="4ZG-U0-vQG" firstAttribute="trailing" secondItem="K8z-c8-er8" secondAttribute="trailing" constant="228" id="CCd-zW-NlN"/>
+                            <constraint firstItem="K8z-c8-er8" firstAttribute="top" secondItem="V2H-0I-SaJ" secondAttribute="bottom" constant="7" id="CZ1-yB-yQ9"/>
                             <constraint firstItem="4ZG-U0-vQG" firstAttribute="trailing" secondItem="ipD-vn-W8d" secondAttribute="trailing" constant="16" id="Udu-KW-MLp"/>
-                            <constraint firstItem="5p0-Gk-gXy" firstAttribute="trailing" secondItem="ipD-vn-W8d" secondAttribute="trailing" id="exq-tW-8wc"/>
-                            <constraint firstItem="ipD-vn-W8d" firstAttribute="top" secondItem="5p0-Gk-gXy" secondAttribute="bottom" constant="45" id="gMv-ge-9Go"/>
-                            <constraint firstItem="V2H-0I-SaJ" firstAttribute="leading" secondItem="D9K-4N-m3v" secondAttribute="leading" id="j6m-FI-8zC"/>
-                            <constraint firstItem="K8z-c8-er8" firstAttribute="top" secondItem="V2H-0I-SaJ" secondAttribute="bottom" constant="5" id="nEM-r2-XnL"/>
-                            <constraint firstItem="4ZG-U0-vQG" firstAttribute="trailing" secondItem="V2H-0I-SaJ" secondAttribute="trailing" id="ngt-CJ-ku5"/>
-                            <constraint firstItem="V2H-0I-SaJ" firstAttribute="top" secondItem="4ZG-U0-vQG" secondAttribute="top" constant="20" id="t9e-fF-6Ua"/>
+                            <constraint firstItem="ipD-vn-W8d" firstAttribute="top" secondItem="K8z-c8-er8" secondAttribute="bottom" constant="581" id="Zgz-AX-BCD"/>
+                            <constraint firstItem="5p0-Gk-gXy" firstAttribute="leading" secondItem="4ZG-U0-vQG" secondAttribute="leading" constant="16" id="ewL-gl-jMr"/>
+                            <constraint firstItem="ipD-vn-W8d" firstAttribute="top" secondItem="K8z-c8-er8" secondAttribute="bottom" constant="581" id="ezO-RJ-DAg"/>
+                            <constraint firstItem="5p0-Gk-gXy" firstAttribute="top" secondItem="V2H-0I-SaJ" secondAttribute="bottom" constant="70" id="f9D-Ut-E6Q"/>
+                            <constraint firstItem="K8z-c8-er8" firstAttribute="leading" secondItem="4ZG-U0-vQG" secondAttribute="leading" constant="16" id="gyX-fM-Dgm"/>
+                            <constraint firstItem="K8z-c8-er8" firstAttribute="top" secondItem="V2H-0I-SaJ" secondAttribute="bottom" constant="7" id="pa2-P7-7Fe"/>
+                            <constraint firstItem="V2H-0I-SaJ" firstAttribute="top" secondItem="4ZG-U0-vQG" secondAttribute="top" constant="20" id="pvj-jl-YXS"/>
+                            <constraint firstItem="K8z-c8-er8" firstAttribute="leading" secondItem="4ZG-U0-vQG" secondAttribute="leading" constant="16" id="qrd-dh-vGZ"/>
+                            <constraint firstItem="V2H-0I-SaJ" firstAttribute="leading" secondItem="4ZG-U0-vQG" secondAttribute="leading" id="r2t-TA-hmp"/>
                             <constraint firstItem="ipD-vn-W8d" firstAttribute="bottom" secondItem="4ZG-U0-vQG" secondAttribute="bottom" constant="16" id="tKF-Ge-bzL"/>
+                            <constraint firstItem="4ZG-U0-vQG" firstAttribute="trailing" secondItem="5p0-Gk-gXy" secondAttribute="trailing" constant="16" id="tnO-kV-nZw"/>
                             <constraint firstItem="ipD-vn-W8d" firstAttribute="leading" secondItem="4ZG-U0-vQG" secondAttribute="leading" constant="16" id="uai-hR-BRK"/>
+                            <constraint firstItem="ipD-vn-W8d" firstAttribute="top" secondItem="5p0-Gk-gXy" secondAttribute="bottom" constant="47" id="w9V-BD-fm4"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="I1m-F6-Cc7"/>
@@ -1169,9 +1185,9 @@
     <inferredMetricsTieBreakers>
         <segue reference="WoU-Q9-ue8"/>
         <segue reference="6xi-mD-C1Z"/>
-        <segue reference="7Mt-S6-RLh"/>
-        <segue reference="zXG-jN-EaD"/>
-        <segue reference="sgT-Aq-O96"/>
+        <segue reference="JbM-Ih-KNp"/>
+        <segue reference="ohV-Sr-Nqe"/>
+        <segue reference="HbA-YP-E1C"/>
         <segue reference="3I2-vN-3nT"/>
         <segue reference="fef-wa-HbF"/>
     </inferredMetricsTieBreakers>

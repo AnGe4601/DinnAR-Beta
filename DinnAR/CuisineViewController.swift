@@ -70,4 +70,16 @@ class CuisineViewController: UIViewController, UICollectionViewDelegate, UIColle
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = (CuisineCollectionView.frame.width - 40) / 2
         return CGSize(width: width, height: 45)}
+    
+    @IBAction func nextButtonTapped(_ sender: UIButton) {
+        // Save selections to preferences
+        let selectedCuisines = selectedCuisineIndex.map { cuisineType[$0.item] }
+        UserPreferencesManager.shared.saveCuisineTypes(selectedCuisines)
+        
+        print("Saved Cuisines:", selectedCuisines)
+        
+        // Navigate to Restaurant Type screen
+        performSegue(withIdentifier: "ToRestaurantTypeVC", sender: nil)
+    }
+
 }

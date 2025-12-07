@@ -90,5 +90,19 @@ public let resturantTypeArr = ["Cafe/Bistro", "Food Truck", "Fine Dine", "Fast F
                             sizeForItemAt indexPath: IndexPath) -> CGSize {
             let width = (resturantTypeCollection.frame.width - 40) / 2
             return CGSize(width: width, height: 45)}
-    
+        
+        @IBAction func nextButtonTapped(_ sender: UIButton) {
+            // Save selections to preferences
+            let selectedTypes = selectedResturantIndex.map { resturantTypeArr[$0.item] }
+            UserPreferencesManager.shared.saveRestaurantTypes(selectedTypes)
+            
+            print("Saved Restaurant Types:", selectedTypes)
+        
+            performSegue(withIdentifier: "toDistanceSI", sender: nil)
+        }
+        
+        @IBAction func backButtonTapped(_ sender: UIButton) {
+            navigationController?.popViewController(animated: true)
+        }
+
     }

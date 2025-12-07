@@ -76,4 +76,24 @@ class DietaryRestrictionViewController: UIViewController, UICollectionViewDelega
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
         let width = (dietaryRestrictionCollection.frame.width - 40) / 2
         return CGSize(width: width, height: 45)}
+    
+    @IBAction func readyButtonTapped(_ sender: UIButton) {
+        // Save selections to preferences
+        let selectedRestrictions = selectedRestrictionIndex.map { dietaryRestrictionArr[$0.item] }
+        UserPreferencesManager.shared.saveDietaryRestrictions(selectedRestrictions)
+        
+        // Mark onboarding as completed
+        UserPreferencesManager.shared.setOnboardingCompleted(true)
+        
+        print("Saved Dietary Restrictions:", selectedRestrictions)
+        print("Onboarding Completed!")
+        
+        // Navigate to Home
+        performSegue(withIdentifier: "toMain", sender: nil)
+    }
+    
+    @IBAction func backButtonTapped(_ sender: UIButton) {
+        navigationController?.popViewController(animated: true)
+    }
+
 }

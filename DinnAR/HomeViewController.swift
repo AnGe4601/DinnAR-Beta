@@ -29,7 +29,7 @@ struct Restaurant: Equatable {
 class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
     
     @IBOutlet weak var segmentControl: UISegmentedControl!
-
+    
     @IBAction func segmentChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0: break // Already on Home
@@ -56,6 +56,7 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     @IBOutlet weak var tableView: UITableView!
     
     var recommendations: [Restaurant] = []
+    private var isUsingPreferences = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -68,11 +69,89 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         searchBar.delegate = self
         tableView.rowHeight = 120
         
-        fetchRestaurants(query: "restaurants in austin")
+        tableView.contentInsetAdjustmentBehavior = .never
+        searchBar.setContentHuggingPriority(.required, for: .vertical)
+        
+        
+        checkAndLoadRestaurants()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.contentInset = .zero
+        tableView.scrollIndicatorInsets = .zero
+        tableView.layoutIfNeeded()
+        tableView.reloadData()
+        
+        // Reload with preferences if user changed preferences
+        if UserPreferencesManager.shared.hasCompletedOnboarding() && isUsingPreferences {
+            loadRestaurantsBasedOnPreferences()
+        }
+    }
+    
+    // MARK: - Preference Loading
+    
+    private func checkAndLoadRestaurants() {
+        if UserPreferencesManager.shared.hasCompletedOnboarding() {
+            loadRestaurantsBasedOnPreferences()
+        } else {
+            // No preferences set - show generic results
+            fetchRestaurants(query: "restaurants in austin")
+        }
+    }
+    
+    private func loadRestaurantsBasedOnPreferences() {
+        let preferences = UserPreferencesManager.shared
+        
+        // Build query from preferences
+        var queryComponents: [String] = []
+        
+        // Add cuisine types
+        let cuisines = preferences.getCuisineTypes()
+        if !cuisines.isEmpty && !cuisines.contains("All") {
+            queryComponents.append(contentsOf: cuisines)
+        }
+        
+        // Add restaurant types
+        let restaurantTypes = preferences.getRestaurantTypes()
+        if !restaurantTypes.isEmpty && !restaurantTypes.contains("All") {
+            queryComponents.append(contentsOf: restaurantTypes)
+        }
+        
+        // Add dietary restrictions
+        let dietary = preferences.getDietaryRestrictions()
+        if !dietary.isEmpty && !dietary.contains("None") {
+            queryComponents.append(contentsOf: dietary)
+        }
+        
+        // Build final query
+        let query = queryComponents.isEmpty ? "restaurants" : queryComponents.joined(separator: " ")
+        
+        print("Searching with preferences: \(query)")
+        fetchRestaurants(query: query)
+        isUsingPreferences = true
+    }
+    
+    private func showNoResultsForPreferences() {
+        let alert = UIAlertController(
+            title: "No Matches Found",
+            message: "We couldn't find restaurants matching your preferences. Try searching manually or adjusting your preferences.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Search All", style: .default) { [weak self] _ in
+            self?.fetchRestaurants(query: "restaurants in austin")
+            self?.isUsingPreferences = false
+        })
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel))
+        
+        present(alert, animated: true)
     }
     
     // MARK: - SerpAPI Integration
     func fetchRestaurants(query: String) {
+        
         let apiKey = "82d6e2c51201426737573e6ea30569f9db91afcd7bed48520ce651746eb88a6d"
         let fullQuery = "\(query) in Austin, TX"
         let encodedQuery = fullQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? fullQuery
@@ -153,6 +232,10 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                     DispatchQueue.main.async {
                         self.recommendations = fetchedRestaurants
                         self.tableView.reloadData()
+                        
+                        if fetchedRestaurants.isEmpty && self.isUsingPreferences {
+                            self.showNoResultsForPreferences()
+                        }
                     }
                 } else {
                     print("AHH JSON parsing failed or no results.")
@@ -165,8 +248,9 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
     
     // MARK: - Search Function
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        guard let searchText = searchBar.text, !searchText.isEmpty else {return}
+        guard let searchText = searchBar.text, !searchText.isEmpty else { return }
         fetchRestaurants(query: searchText)
+        isUsingPreferences = false
         searchBar.resignFirstResponder()
     }
     
@@ -198,12 +282,21 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
                let destVC = navController.viewControllers.first as? RestaurantInfoViewController {
                 destVC.restaurant = selectedRestaurant
                 destVC.sourceVC = .home
+                
+                // Use a closure to update the heart
+                destVC.onFavoriteToggle = { [weak self] updatedRestaurant in
+                    guard let self = self else { return }
+                    if let index = self.recommendations.firstIndex(of: updatedRestaurant) {
+                        let indexPath = IndexPath(row: index, section: 0)
+                        self.tableView.reloadRows(at: [indexPath], with: .none)
+                    }
+                }
             }
         }
     }
-
 }
 
+// MARK: - RecommendationCellDelegate
 extension HomeViewController: RecommendationCellDelegate {
     func didToggleFavorite(for restaurant: Restaurant) {
         FavoritesManager.shared.toggleFavorite(restaurant)

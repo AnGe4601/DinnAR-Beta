@@ -41,6 +41,8 @@ class RestaurantInfoViewController: UIViewController {
     private let callButton = UIButton(type: .system)
     private let shareButton = UIButton(type: .system)
     private let bottomButton = UIButton(type: .system)
+    var onFavoriteToggle: ((Restaurant) -> Void)?
+
     
     private var contentContainerTopConstraint: NSLayoutConstraint!
     
@@ -61,6 +63,9 @@ class RestaurantInfoViewController: UIViewController {
         populateBasicInfo()
         setupStarsDisplay()
         
+        updateFavoriteButton()
+
+        
         if let restaurant = restaurant {
             fetchYelpData(for: restaurant)
         }
@@ -77,6 +82,8 @@ class RestaurantInfoViewController: UIViewController {
             dismiss(animated: true, completion: nil)
         }
     }
+    
+    
     
     // MARK: - Setup Methods
     
@@ -154,7 +161,7 @@ class RestaurantInfoViewController: UIViewController {
         ])
         
         // Favorite icon
-        shareButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+        shareButton.setImage(UIImage(systemName: "heart"), for: .normal)
         shareButton.tintColor = UIColor(red: 0xBA/255.0, green: 0x39/255.0, blue: 0x02/255.0, alpha: 1.0)
         shareButton.backgroundColor = UIColor(red: 0xBA/255.0, green: 0x39/255.0, blue: 0x02/255.0, alpha: 0.15)
         shareButton.layer.cornerRadius = 22
@@ -670,8 +677,15 @@ class RestaurantInfoViewController: UIViewController {
     
     // Toggles favorite status and animates the heart button
     @objc private func shareButtonTapped() {
-        isFavorite.toggle()
+        guard let restaurant = restaurant else { return }
         
+        // Toggle in FavoritesManager
+        FavoritesManager.shared.toggleFavorite(restaurant)
+        
+        // Update local state
+        updateFavoriteButton()
+
+        // Animate the heart
         UIView.animate(withDuration: 0.2) {
             self.shareButton.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
         } completion: { _ in
@@ -680,11 +694,23 @@ class RestaurantInfoViewController: UIViewController {
             }
         }
         
+        // Update image
         let imageName = isFavorite ? "heart.fill" : "heart"
         shareButton.setImage(UIImage(systemName: imageName), for: .normal)
         
+        // Haptic feedback
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
+        
+        onFavoriteToggle?(restaurant)
+    }
+    
+    private func updateFavoriteButton() {
+        guard let restaurant = restaurant else { return }
+        
+        isFavorite = FavoritesManager.shared.isFavorite(restaurant)
+        let imageName = isFavorite ? "heart.fill" : "heart"
+        shareButton.setImage(UIImage(systemName: imageName), for: .normal)
     }
     
     // Handles segmented control changes to switch between Menu, Reviews, and Info
