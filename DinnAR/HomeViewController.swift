@@ -1,8 +1,8 @@
 import UIKit
 
-struct Restaurant: Equatable {
+struct Restaurant: Codable, Equatable {
     var name: String
-    var cuisine: String
+    var cuisine: String?
     var stars: String
     var imageURL: String?
     var reviews: String
@@ -11,6 +11,7 @@ struct Restaurant: Equatable {
     var location: String
     var lat: Double
     var long: Double
+    var visited: Bool = false
 
     // Google data
     var description: String?
@@ -24,6 +25,16 @@ struct Restaurant: Equatable {
     var yelpReviews: [String]?
     var yelpMenu: [String]?
     var yelpWaitTime: String?
+}
+
+extension Restaurant {
+    var dictionary: [String: Any] {
+        return [
+            "name": name,
+            "location": location,
+            "cuisine": cuisine ?? ""
+        ]
+    }
 }
 
 class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {

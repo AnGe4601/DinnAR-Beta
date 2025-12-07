@@ -3,7 +3,9 @@ import UIKit
 enum SourceVC {
     case home
     case favorites
+    case visited
 }
+
 
 class RestaurantInfoViewController: UIViewController {
     
@@ -42,6 +44,8 @@ class RestaurantInfoViewController: UIViewController {
     private let shareButton = UIButton(type: .system)
     private let bottomButton = UIButton(type: .system)
     var onFavoriteToggle: ((Restaurant) -> Void)?
+    var onVisitedToggle: (() -> Void)?
+
 
     
     private var contentContainerTopConstraint: NSLayoutConstraint!
@@ -64,6 +68,7 @@ class RestaurantInfoViewController: UIViewController {
         setupStarsDisplay()
         
         updateFavoriteButton()
+        setupVisitedButton()
 
         
         if let restaurant = restaurant {
@@ -370,7 +375,9 @@ class RestaurantInfoViewController: UIViewController {
         bottomButton.layer.cornerRadius = 12
         bottomButton.clipsToBounds = true
         bottomButton.translatesAutoresizingMaskIntoConstraints = false
+        bottomButton.addTarget(self, action: #selector(markVisitedTapped), for: .touchUpInside)
         contentView.addSubview(bottomButton)
+        
         
         NSLayoutConstraint.activate([
             bottomButton.topAnchor.constraint(equalTo: quickInfoStack.bottomAnchor, constant: 22),
@@ -379,6 +386,58 @@ class RestaurantInfoViewController: UIViewController {
             bottomButton.heightAnchor.constraint(equalToConstant: 46),
             bottomButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -32)
         ])
+    }
+    
+    // Property to track visited state
+    private var isVisited = false
+
+    private func setupVisitedButton() {
+        // Load visited state
+        updateVisitedState()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        updateVisitedState()   // refresh visited button every time page appears
+    }
+
+    @objc private func markVisitedTapped() {
+        guard let restaurant = restaurant else { return }
+        
+        // Toggle visited with Firestore sync
+        VisitedManager.shared.toggleVisited(restaurant) { [weak self] error in
+            guard let self = self else { return }
+            
+            // Update local state
+            let isVisited = VisitedManager.shared.isVisited(restaurant)
+            
+            // Update button UI immediately
+            let title = isVisited ? "Visited" : "Mark Visited"
+            let bgColor = isVisited ? UIColor.burntOrange : UIColor.systemOrange
+            
+            DispatchQueue.main.async {
+                self.bottomButton.setTitle(title, for: .normal)
+                self.bottomButton.backgroundColor = bgColor
+            }
+            
+            if let error = error {
+                print("Error updating Firestore: \(error)")
+            }
+            
+            self.onVisitedToggle?()
+        }
+    }
+
+    private func updateVisitedState() {
+        guard let restaurant = restaurant else { return }
+        
+        isVisited = VisitedManager.shared.isVisited(restaurant)
+        
+        let title = isVisited ? "Visited" : "Mark Visited"
+        let bgColor = isVisited ? UIColor.burntOrange : UIColor.systemOrange
+        
+        bottomButton.setTitle(title, for: .normal)
+        bottomButton.backgroundColor = bgColor
     }
     
     // MARK: - Data Population

@@ -10,11 +10,17 @@ import FirebaseCore
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
-
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+            
+        // Existing Firebase app (login/settings)
         FirebaseApp.configure()
+            
+        if let filePath = Bundle.main.path(forResource: "GoogleService-Info (3)", ofType: "plist"),
+            let options = FirebaseOptions(contentsOfFile: filePath) {
+            FirebaseApp.configure(name: "VisitedApp", options: options)
+        }
+            
         return true
     }
 
