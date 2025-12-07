@@ -9,6 +9,22 @@ import UIKit
 import MapKit
 import CoreLocation
 
+// Custome annotation type for restaurant annotation
+class RestaurantAnnotation: NSObject, MKAnnotation {
+    let restaurant: Restaurant
+    var coordinate: CLLocationCoordinate2D
+    var title: String?
+    var subtitle: String?
+    
+    init(restaurant: Restaurant) {
+        self.restaurant = restaurant
+        self.coordinate = CLLocationCoordinate2D(latitude: restaurant.lat, longitude: restaurant.long)
+        self.title = restaurant.name
+        self.subtitle = restaurant.cuisine
+    }
+}
+
+
 class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate {
 
     @IBOutlet weak var mapView: MKMapView!
@@ -22,6 +38,18 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
         
         mapView.delegate = self
         setupSegmentControl()
+        mapSetUp()
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateMapData),
+            name: ResturantDataManager.didUpdateRestaurants,
+            object: nil
+        )
+        
+        self.restaurants = ResturantDataManager.shared.fetchedRestaurants
+        addRestaurants()
+
         /*  test
         resturants = [
                     Restaurant(
@@ -38,11 +66,16 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
                     )
                 ]
          */
-        mapSetUp()
-        
-        fetchRestaurants(query: "restaurants in Austin")
     }
     
+    @objc func updateMapData() {
+        print("Map received updated restaurant list")
+        self.restaurants = ResturantDataManager.shared.fetchedRestaurants
+        mapView.removeAnnotations(mapView.annotations)
+        addRestaurants()
+    }
+    
+    // Initial map interface set up
     func mapSetUp() {
         let region = MKCoordinateRegion(
             center: CLLocationCoordinate2D(latitude: 30.2672, longitude: -97.7431),
@@ -51,111 +84,71 @@ class MapViewController: UIViewController, MKMapViewDelegate, CLLocationManagerD
             mapView.setRegion(region, animated: true)
     }
     
-    func fetchRestaurants(query: String) {
-        let apiKey = "82d6e2c51201426737573e6ea30569f9db91afcd7bed48520ce651746eb88a6d"
-        let fullQuery = "\(query) in Austin, TX"
-        let encodedQuery = fullQuery.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? fullQuery
-        let urlString = "https://serpapi.com/search.json?engine=google_local&q=\(encodedQuery)&api_key=\(apiKey)"
-        
-        guard let url = URL(string: urlString) else { return }
-        print("Fetching map data from: \(urlString)")
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let error = error {
-                print("Error fetching data: \(error)")
-                return
-            }
-            
-            guard let data = data else {
-                print("No data received.")
-                return
-            }
-            
-            do {
-                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                    var results: [[String: Any]] = []
-                    
-                    if let localResults = json["local_results"] as? [[String: Any]] {
-                        results = localResults
-                    } else if let mapResults = json["local_map_results"] as? [[String: Any]] {
-                        results = mapResults
-                    }
-                    
-                    guard !results.isEmpty else {
-                        print("No restaurants found.")
-                        return
-                    }
-                    
-                    var fetchedRestaurants: [Restaurant] = []
-                    for item in results.prefix(15) { // up to 15 pins
-                        let name = item["title"] as? String ?? "Unknown"
-                        let cuisine = item["type"] as? String ?? "Restaurant"
-                        let rating = item["rating"] as? Double ?? 0.0
-                        let stars = String(repeating: "⭐️", count: Int(rating.rounded()))
-                        let reviews = "\(item["reviews"] ?? "0") reviews"
-                        let priceLevel = item["price"] as? String ?? "$$"
-                        let location = item["address"] as? String ?? "Austin"
-                        let gps = item["gps_coordinates"] as? [String: Any]
-                        let lat = gps?["latitude"] as? Double ?? 0.0
-                        let long = gps?["longitude"] as? Double ?? 0.0
-                        
-                        fetchedRestaurants.append(Restaurant(
-                            name: name,
-                            cuisine: cuisine,
-                            stars: stars,
-                            imageURL: item["thumbnail"] as? String,
-                            reviews: reviews,
-                            priceLevel: priceLevel,
-                            distance: "",
-                            location: location,
-                            lat: lat,
-                            long: long
-                        ))
-                    }
-                    
-                    DispatchQueue.main.async {
-                        self.restaurants = fetchedRestaurants
-                        self.addRestaurants()
-                    }
-                }
-            } catch {
-                print("Failed to decode JSON: \(error)")
-            }
-        }.resume()
-    }
-    
-    // MARK: - Add Map Pins
     func addRestaurants() {
-        for restaurant in restaurants {
-            guard restaurant.lat != 0.0, restaurant.long != 0.0 else { continue }
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = CLLocationCoordinate2D(latitude: restaurant.lat, longitude: restaurant.long)
-            annotation.title = restaurant.name
-            annotation.subtitle = restaurant.cuisine
+        mapView.removeAnnotations(mapView.annotations)
+        for r in restaurants {
+            guard r.lat != 0, r.long != 0 else { continue }
+            let annotation = RestaurantAnnotation(restaurant: r)
             mapView.addAnnotation(annotation)
         }
     }
-    
-    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        guard !(annotation is MKUserLocation) else { return nil }
-        
-        let identifier = "RestaurantPin"
-        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
-        
-        if annotationView == nil {
-            annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-            annotationView?.canShowCallout = true
-            
-            annotationView?.image = UIImage(systemName: "fork.knife.circle.fill")
-            annotationView?.tintColor = UIColor.burntOrange
-            
-            let infoButton = UIButton(type: .detailDisclosure)
-            annotationView?.rightCalloutAccessoryView = infoButton
-        } else {
-            annotationView?.annotation = annotation
+
+    func mapView(_ mapView: MKMapView,
+                 viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+
+        if annotation is MKUserLocation { return nil }
+
+        guard let restaurantAnnotation = annotation as? RestaurantAnnotation else {
+            return nil
         }
+
+        let identifier = "RestaurantPin"
+        var view = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+
+        if view == nil {
+            view = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+            view?.canShowCallout = true
+
+            // Your custom icon
+            view?.image = UIImage(systemName: "fork.knife.circle.fill")
+            view?.tintColor = UIColor.burntOrange
+
+            // Add disclosure button
+            view?.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+        } else {
+            view?.annotation = annotation
+        }
+
+        return view
+    }
+    
+    // Handle Button Tap
+    func mapView(_ mapView: MKMapView,
+                 annotationView view: MKAnnotationView,
+                 calloutAccessoryControlTapped control: UIControl) {
+
+        guard let annotation = view.annotation as? RestaurantAnnotation else { return }
         
-        return annotationView
+        let selectedRestaurant = annotation.restaurant
+
+        let vc = storyboard?.instantiateViewController(
+            withIdentifier: "RestaurantInfoViewController"
+        ) as! RestaurantInfoViewController
+        
+        vc.navigationItem.leftBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .close,
+            target: self,
+            action: #selector(dismissRestaurantInfo)
+        )
+        
+        let navVC = UINavigationController(rootViewController: vc)
+        vc.restaurant = selectedRestaurant
+
+        present(navVC, animated: true)
+    }
+
+    @objc func dismissRestaurantInfo() {
+        dismiss(animated: true)
     }
     
     // MARK: - Segmented Control
