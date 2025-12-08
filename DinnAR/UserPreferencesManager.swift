@@ -5,60 +5,82 @@
 //  Created by Srinidhi P on 12/6/25.
 //
 import Foundation
+import FirebaseAuth
 
 class UserPreferencesManager {
     static let shared = UserPreferencesManager()
     private let userDefaults = UserDefaults.standard
     
     private enum Keys {
-        static let restaurantTypes = "selectedRestaurantTypes"
-        static let cuisineTypes = "selectedCuisineTypes"
-        static let dietaryRestrictions = "selectedDietaryRestrictions"
-        static let hasCompletedOnboarding = "hasCompletedOnboarding"
+        static func restaurantTypes(for userId: String) -> String {
+            return "\(userId)_restaurantTypes"
+        }
+        static func cuisineTypes(for userId: String) -> String {
+            return "\(userId)_cuisineTypes"
+        }
+        static func dietaryRestrictions(for userId: String) -> String {
+            return "\(userId)_dietaryRestrictions"
+        }
+        static func hasCompletedOnboarding(for userId: String) -> String {
+            return "\(userId)_onboardingComplete"
+        }
+    }
+    
+    private func getCurrentUserId() -> String? {
+        return Auth.auth().currentUser?.uid
     }
     
     // MARK: - Save Preferences
     
     func saveRestaurantTypes(_ types: [String]) {
-        userDefaults.set(types, forKey: Keys.restaurantTypes)
+        guard let userId = getCurrentUserId() else { return }
+        userDefaults.set(types, forKey: Keys.restaurantTypes(for: userId))
     }
     
     func saveCuisineTypes(_ types: [String]) {
-        userDefaults.set(types, forKey: Keys.cuisineTypes)
+        guard let userId = getCurrentUserId() else { return }
+        userDefaults.set(types, forKey: Keys.cuisineTypes(for: userId))
     }
     
     func saveDietaryRestrictions(_ restrictions: [String]) {
-        userDefaults.set(restrictions, forKey: Keys.dietaryRestrictions)
+        guard let userId = getCurrentUserId() else { return }
+        userDefaults.set(restrictions, forKey: Keys.dietaryRestrictions(for: userId))
     }
     
     func setOnboardingCompleted(_ completed: Bool) {
-        userDefaults.set(completed, forKey: Keys.hasCompletedOnboarding)
+        guard let userId = getCurrentUserId() else { return }
+        userDefaults.set(completed, forKey: Keys.hasCompletedOnboarding(for: userId))
     }
     
     // MARK: - Get Preferences
     
     func getRestaurantTypes() -> [String] {
-        return userDefaults.stringArray(forKey: Keys.restaurantTypes) ?? []
+        guard let userId = getCurrentUserId() else { return [] }
+        return userDefaults.stringArray(forKey: Keys.restaurantTypes(for: userId)) ?? []
     }
     
     func getCuisineTypes() -> [String] {
-        return userDefaults.stringArray(forKey: Keys.cuisineTypes) ?? []
+        guard let userId = getCurrentUserId() else { return [] }
+        return userDefaults.stringArray(forKey: Keys.cuisineTypes(for: userId)) ?? []
     }
     
     func getDietaryRestrictions() -> [String] {
-        return userDefaults.stringArray(forKey: Keys.dietaryRestrictions) ?? []
+        guard let userId = getCurrentUserId() else { return [] }
+        return userDefaults.stringArray(forKey: Keys.dietaryRestrictions(for: userId)) ?? []
     }
     
     func hasCompletedOnboarding() -> Bool {
-        return userDefaults.bool(forKey: Keys.hasCompletedOnboarding)
+        guard let userId = getCurrentUserId() else { return false }
+        return userDefaults.bool(forKey: Keys.hasCompletedOnboarding(for: userId))
     }
     
     // MARK: - Clear Preferences
     
     func clearAllPreferences() {
-        userDefaults.removeObject(forKey: Keys.restaurantTypes)
-        userDefaults.removeObject(forKey: Keys.cuisineTypes)
-        userDefaults.removeObject(forKey: Keys.dietaryRestrictions)
-        userDefaults.removeObject(forKey: Keys.hasCompletedOnboarding)
+        guard let userId = getCurrentUserId() else { return }
+        userDefaults.removeObject(forKey: Keys.restaurantTypes(for: userId))
+        userDefaults.removeObject(forKey: Keys.cuisineTypes(for: userId))
+        userDefaults.removeObject(forKey: Keys.dietaryRestrictions(for: userId))
+        userDefaults.removeObject(forKey: Keys.hasCompletedOnboarding(for: userId))
     }
 }

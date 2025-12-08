@@ -15,14 +15,14 @@ class RestaurantInfoViewController: UIViewController {
     private var isFavorite: Bool = false
     
     // Data from API
-    private var menuItems: String = "No menu information available.\n\nPlease visit the restaurant's website or call for menu details."
-    private var reviewsData: [[String: Any]] = []
-    private var averageRating: Double = 0.0
-    private var reviewCount: Int = 0
-    private var phoneNumber: String?
-    private var yelpURL: String?
-    private var restaurantAddress: String?
-    private var restaurantHours: String?
+    var menuItems: String = "No menu information available.\n\nPlease visit the restaurant's website or call for menu details."
+    var reviewsData: [[String: Any]] = []
+    var averageRating: Double = 0.0
+    var reviewCount: Int = 0
+    var phoneNumber: String?
+    var yelpURL: String?
+    var restaurantAddress: String?
+    var restaurantHours: String?
     
     // MARK: - UI Elements
     private let scrollView = UIScrollView()

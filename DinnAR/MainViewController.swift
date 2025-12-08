@@ -12,9 +12,12 @@ class MainViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var segmentControl: UISegmentedControl!
-
+    
     var favorites: [Restaurant] = []
     var visited: [Restaurant] = []
+    // Fake in-memory friends data
+    var friendsData: [String: (liked: [String], visited: [String])] = [:]
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,6 +50,13 @@ class MainViewController: UIViewController {
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -47)
         ])
     }
+    
+    private func setupFakeFriends() {
+        // Example friends for testing
+        favorites.forEach { friendsData[$0.name] = (liked: ["Alice", "Bob"], visited: ["Charlie"]) }
+        visited.forEach { friendsData[$0.name] = (liked: ["Dave"], visited: ["Eve", "Frank"]) }
+    }
+
 
     private func setupSegmentControl() {
         segmentControl.selectedSegmentIndex = 1 // Favorites tab
@@ -73,6 +83,7 @@ class MainViewController: UIViewController {
             self?.tableView.reloadData()
         }
     }
+
 
     @IBAction func segmentChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
@@ -169,25 +180,31 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate {
 }
 
 extension MainViewController: RecommendationCellDelegate {
+    
     func didToggleFavorite(for restaurant: Restaurant) {
         FavoritesManager.shared.toggleFavorite(restaurant) { [weak self] error in
-            if let error = error { print(error) }
-            self?.loadData() // reload table after toggling
+            if let error = error { print("Fav error:", error) }
+            self?.loadData()
         }
     }
-
+    
     func didToggleVisited(for restaurant: Restaurant) {
         VisitedManager.shared.toggleVisited(restaurant) { [weak self] error in
-            if let error = error {
-                print("Error toggling visited: \(error)")
-            } else {
-                // Reload table on main thread
-                DispatchQueue.main.async {
-                    self?.loadData()
-                    self?.tableView.reloadData()
-                }
-            }
+            if let error = error { print("Visited error:", error) }
+            self?.loadData()
         }
     }
+    
+    func didTapFriendsButton(for restaurant: Restaurant, from cell: RecommendationCell) {
+        let counts = friendsData[restaurant.name] ?? (liked: [], visited: [])
+        let msg = """
+        Liked by \(counts.liked.joined(separator: ", "))
+        Visited by \(counts.visited.joined(separator: ", "))
+        """
+        let alert = UIAlertController(title: restaurant.name,
+                                      message: msg.isEmpty ? "No friends yet" : msg,
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
 }
-

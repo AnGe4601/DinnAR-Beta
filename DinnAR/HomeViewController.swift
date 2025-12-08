@@ -100,6 +100,21 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
         }
     }
     
+    func mapAPIDataToRestaurant(apiData: [String: Any]) -> Restaurant {
+        return Restaurant(
+            name: apiData["name"] as? String ?? "",
+            cuisine: apiData["cuisine"] as? String,
+            stars: apiData["stars"] as? String ?? "",
+            imageURL: apiData["imageURL"] as? String,
+            reviews: apiData["reviews"] as? String ?? "",
+            priceLevel: apiData["priceLevel"] as? String ?? "",
+            distance: apiData["distance"] as? String ?? "",
+            location: apiData["location"] as? String ?? "",
+            lat: apiData["lat"] as? Double ?? 0,
+            long: apiData["long"] as? Double ?? 0
+        )
+    }
+    
     // MARK: - Preference Loading
     
     private func checkAndLoadRestaurants() {
@@ -310,11 +325,43 @@ class HomeViewController: UIViewController, UITableViewDataSource, UITableViewDe
 
 // MARK: - RecommendationCellDelegate
 extension HomeViewController: RecommendationCellDelegate {
+    
     func didToggleFavorite(for restaurant: Restaurant) {
-        FavoritesManager.shared.toggleFavorite(restaurant)
-        if let index = recommendations.firstIndex(of: restaurant) {
-            let indexPath = IndexPath(row: index, section: 0)
-            tableView.reloadRows(at: [indexPath], with: .none)
+        FavoritesManager.shared.toggleFavorite(restaurant) { [weak self] error in
+            guard let self = self else { return }
+            if let error = error { print("Favorite toggle error:", error) }
+            if let index = self.recommendations.firstIndex(of: restaurant) {
+                let indexPath = IndexPath(row: index, section: 0)
+                self.tableView.reloadRows(at: [indexPath], with: .none)
+            }
         }
     }
+    
+    func didToggleVisited(for restaurant: Restaurant) {
+        VisitedManager.shared.toggleVisited(restaurant) { [weak self] error in
+            guard let self = self else { return }
+            if let error = error { print("Visited toggle error:", error) }
+            if let index = self.recommendations.firstIndex(of: restaurant) {
+                let indexPath = IndexPath(row: index, section: 0)
+                self.tableView.reloadRows(at: [indexPath], with: .none)
+            }
+        }
+    }
+    
+    func didTapFriendsButton(for restaurant: Restaurant, from cell: RecommendationCell) {
+        // Example: fake counts for demonstration
+        let likedCount = 0
+        let visitedCount = 0
+        
+        let message = """
+        Liked by \(likedCount) friends
+        Visited by \(visitedCount) friends
+        """
+        
+        let alert = UIAlertController(title: restaurant.name, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
 }
+
+

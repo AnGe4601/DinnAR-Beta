@@ -16,7 +16,6 @@ class VisitedManager {
 
     private(set) var visited: [Restaurant] = []
 
-    // Reference to Firestore for the VisitedApp
     private var firestore: Firestore? {
         guard let app = FirebaseApp.app(name: "VisitedApp") else {
             print("VisitedApp not configured")
@@ -25,14 +24,12 @@ class VisitedManager {
         return Firestore.firestore(app: app)
     }
 
-    // MARK: - Fetch all visited restaurants
+    // MARK: - Fetch all visited
     func fetchVisited(completion: @escaping ([Restaurant]) -> Void) {
-        firestore?.collection("visited").getDocuments { [weak self] snapshot, error in
-            guard let self = self else { return }
+        firestore?.collection("visited").getDocuments { snapshot, error in
             if let error = error {
                 print("Error fetching visited: \(error)")
-                DispatchQueue.main.async { completion([]) }
-                return
+                completion([]); return
             }
 
             let fetched = snapshot?.documents.compactMap { doc -> Restaurant? in
@@ -40,48 +37,46 @@ class VisitedManager {
             } ?? []
 
             self.visited = fetched
-
-            DispatchQueue.main.async {
-                completion(fetched)
-            }
+            completion(fetched)
         }
     }
 
-    // MARK: - Check if restaurant is visited
+    // MARK: - Check if visited
     func isVisited(_ restaurant: Restaurant) -> Bool {
-        return visited.contains(where: { $0.name == restaurant.name && $0.location == restaurant.location })
+        return visited.contains {
+            $0.name == restaurant.name && $0.location == restaurant.location
+        }
     }
 
     // MARK: - Toggle visited status
     func toggleVisited(_ restaurant: Restaurant, completion: @escaping (Error?) -> Void) {
-        guard let firestore = firestore else {
-            completion(nil)
-            return
-        }
+        guard let firestore else { completion(nil); return }
 
-        let docID = "\(restaurant.name)-\(restaurant.location)" // unique id per restaurant
+        let docID = "\(restaurant.name)-\(restaurant.location)"
         let docRef = firestore.collection("visited").document(docID)
 
         if isVisited(restaurant) {
-            // Remove from Firestore
-            docRef.delete { [weak self] error in
+            // Remove
+            docRef.delete { error in
                 if error == nil {
-                    self?.visited.removeAll { $0.name == restaurant.name && $0.location == restaurant.location }
+                    self.visited.removeAll {
+                        $0.name == restaurant.name && $0.location == restaurant.location
+                    }
                 }
-                DispatchQueue.main.async { completion(error) }
+                completion(error)
             }
         } else {
-            // Add to Firestore
+            // Add
             do {
-                try docRef.setData(from: restaurant) { [weak self] error in
+                try docRef.setData(from: restaurant) { error in
                     if error == nil {
-                        self?.visited.append(restaurant)
+                        self.visited.append(restaurant)
                     }
-                    DispatchQueue.main.async { completion(error) }
+                    completion(error)
                 }
             } catch {
-                print("Error encoding restaurant: \(error)")
-                DispatchQueue.main.async { completion(error) }
+                print("Encoding error: \(error)")
+                completion(error)
             }
         }
     }
