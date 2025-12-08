@@ -835,7 +835,7 @@ class RestaurantInfoViewController: UIViewController {
     
     // Initiates Yelp search to fetch restaurant data
     private func fetchYelpData(for restaurant: Restaurant) {
-        let apiKey = "82d6e2c51201426737573e6ea30569f9db91afcd7bed48520ce651746eb88a6d"
+        let apiKey = "97905f766b9efca118fc3e7d9a91e1acae701ffbbd145cc333e645da2517e53c"
         let location = restaurant.location.isEmpty ? "Austin, TX" : restaurant.location
         let query = "\(restaurant.name) \(location)"
         let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query

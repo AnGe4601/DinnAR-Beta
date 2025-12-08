@@ -81,7 +81,7 @@ class SettingViewController: UIViewController {
 //            let phone = data["phone"] as? String ?? "No Phone"
             
             DispatchQueue.main.async {
-                self.nameLabel.text = "Hello,\(fullName)!"
+                self.nameLabel.text = "Hello , \(fullName) !"
             
             }
         }
@@ -124,6 +124,171 @@ class SettingViewController: UIViewController {
                 UIApplication.shared.open(url, options: [:])
             }
         }
+    @IBAction func deleteAccountPressed(_ sender: UIButton) {
+            let alert = UIAlertController(
+                title: "Delete Account",
+                message: "This action cannot be undone. Do you want to proceed?",
+                preferredStyle: .alert
+            )
+            
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+                self.deleteAccount()
+            }))
+            
+            present(alert, animated: true)
+        }
+        
+        
+        private func deleteAccount() {
+            guard let user = Auth.auth().currentUser else { return }
+            let uid = user.uid
+            let db = Firestore.firestore()
+            
+//            startLoading()
+            
+            // Step 1: Delete Firestore Data
+            db.collection("users").document(uid).delete { firestoreError in
+                if let firestoreError = firestoreError {
+                    print("Firestore delete error: \(firestoreError.localizedDescription)")
+//                    self.stopLoading()
+                    return
+                }
+                
+                // Step 2: Delete Auth User
+                user.delete { authError in
+//                    self.stopLoading()
+                    
+                    if let authError = authError as NSError? {
+                        if authError.code == AuthErrorCode.requiresRecentLogin.rawValue {
+                            self.showReauthAlert()
+                        } else {
+                            print("Auth delete error: \(authError.localizedDescription)")
+                        }
+                        return
+                    }
+                    
+                    // Success → Go to login
+                    self.presentLoginScreen()
+                }
+            }
+        }
+    @IBAction func logoutPressed(_ sender: UIButton) {
+        let alert = UIAlertController(
+            title: "Logout",
+            message: "Are you sure you want to log out?",
+            preferredStyle: .alert
+        )
+        
+        // Cancel button
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        // Confirm logout
+        alert.addAction(UIAlertAction(title: "Logout", style: .destructive, handler: { _ in
+            self.performLogout()
+        }))
+        
+        present(alert, animated: true)
     }
 
+    private func performLogout() {
+        do {
+            try Auth.auth().signOut()
+            presentLoginScreen()
+        } catch {
+            print("Error signing out: \(error.localizedDescription)")
+        }
+    }
+    @IBAction func editPreferencesPressed(_ sender: UIButton) {
+            let alert = UIAlertController(
+                title: "Edit Preferences",
+                message: "Are you sure you want to edit your preferences?",
+                preferredStyle: .alert
+            )
+            
+            // Cancel button
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            
+            // Confirm button
+            alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { _ in
+                // Instantiate the existing ViewController
+                if let vc = self.storyboard?.instantiateViewController(withIdentifier: "ViewController") {
+                    
+                    // Use navigation controller if exists
+                    if let nav = self.navigationController {
+                        nav.pushViewController(vc, animated: true)
+                    } else {
+                        vc.modalPresentationStyle = .fullScreen
+                        self.present(vc, animated: true)
+                    }
+                    
+                } else {
+                    print("Could not load ViewController – check Storyboard ID.")
+                }
+            }))
+            
+            present(alert, animated: true)
+        }
 
+
+
+    private func openPreferencesScreen() {
+        if let vc = storyboard?.instantiateViewController(withIdentifier: "ViewController") as? ViewController {
+            self.navigationController?.pushViewController(vc, animated: true)
+        } else {
+            print("Could not load PreferencesViewController – check Storyboard ID and class.")
+        }
+    }
+
+//    private func openPreferencesScreen() {
+//        if let vc = storyboard?.instantiateViewController(withIdentifier: "PreferencesViewController") as? PreferencesViewController {
+//            vc.modalPresentationStyle = .fullScreen
+//            present(vc, animated: true)
+//        } else {
+//            print("Could not load PreferencesViewController – check Storyboard ID and class.")
+//        }
+//    }
+
+
+
+        
+        
+        private func showReauthAlert() {
+            let alert = UIAlertController(
+                title: "Re-login Required",
+                message: "Please sign in again to delete your account.",
+                preferredStyle: .alert
+            )
+            
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                self.presentLoginScreen()
+            }))
+            
+            present(alert, animated: true)
+        }
+        
+        
+        
+    private func presentLoginScreen() {
+        DispatchQueue.main.async {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
+
+            // Wrap login screen in a new navigation controller
+            let nav = UINavigationController(rootViewController: loginVC)
+            nav.navigationBar.isHidden = true   // optional
+            
+            if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = scene.windows.first {
+
+                window.rootViewController = nav
+                window.makeKeyAndVisible()
+            }
+
+            print("Successfully reset root VC to Login inside new NavController.")
+        }
+    }
+
+        }
+        
+   
