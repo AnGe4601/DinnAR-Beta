@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
         // Existing Firebase app (login/settings)
         FirebaseApp.configure()
-            
+        
         if let filePath = Bundle.main.path(forResource: "GoogleService-Info (3)", ofType: "plist"),
             let options = FirebaseOptions(contentsOfFile: filePath) {
             FirebaseApp.configure(name: "VisitedApp", options: options)

@@ -895,7 +895,7 @@ class RestaurantInfoViewController: UIViewController {
     
     // Fetches detailed place information and reviews from Yelp
     private func fetchYelpPlaceDetails(placeID: String, for restaurant: Restaurant) {
-        let apiKey = "82d6e2c51201426737573e6ea30569f9db91afcd7bed48520ce651746eb88a6d"
+        let apiKey = "97905f766b9efca118fc3e7d9a91e1acae701ffbbd145cc333e645da2517e53c"
         
         let placeURL = "https://serpapi.com/search.json?engine=yelp_place&place_id=\(placeID)&api_key=\(apiKey)"
         

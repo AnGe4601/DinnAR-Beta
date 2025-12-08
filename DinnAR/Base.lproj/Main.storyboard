@@ -101,8 +101,15 @@
                                     <action selector="segmentChanged:" destination="FvS-l9-O28" eventType="valueChanged" id="f49-Dn-hyq"/>
                                 </connections>
                             </segmentedControl>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Upload profile picture here" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zTU-gs-QSj">
+                                <rect key="frame" x="115" y="274" width="163" height="16"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="italicSystem" pointSize="13"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="User Full Name" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VXN-Q1-Gg8">
-                                <rect key="frame" x="33" y="274" width="326" height="55"/>
+                                <rect key="frame" x="33" y="310" width="326" height="55"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" name="Noteworthy-Bold" family="Noteworthy" pointSize="19"/>
                                 <nil key="textColor"/>
@@ -120,6 +127,7 @@
                         <outlet property="nameLabel" destination="VXN-Q1-Gg8" id="dfp-GT-poZ"/>
                         <outlet property="profileImageView" destination="xTs-gT-Wn3" id="xI7-5p-S4t"/>
                         <outlet property="segmentControl" destination="UQg-Yi-Coc" id="l5M-bj-EvW"/>
+                        <outlet property="uploadLabel" destination="zTU-gs-QSj" id="1Za-Rq-Av8"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MOw-on-1V8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
