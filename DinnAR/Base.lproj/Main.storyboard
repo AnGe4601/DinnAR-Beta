@@ -38,7 +38,7 @@
                                     <color key="baseForegroundColor" systemColor="labelColor"/>
                                 </buttonConfiguration>
                                 <connections>
-                                    <action selector="editPreferencesPressed:" destination="FvS-l9-O28" eventType="touchUpInside" id="32M-Pv-tOp"/>
+                                    <action selector="editPreferencesPressed:" destination="FvS-l9-O28" eventType="touchUpInside" id="E0k-f8-ile"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Change Preferences" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fSE-4d-W76">
@@ -60,7 +60,7 @@
                                     <color key="baseForegroundColor" systemColor="labelColor"/>
                                 </buttonConfiguration>
                                 <connections>
-                                    <action selector="logoutPressed:" destination="FvS-l9-O28" eventType="touchUpInside" id="mOm-TD-LZ2"/>
+                                    <action selector="logoutPressed:" destination="FvS-l9-O28" eventType="touchUpInside" id="hhL-md-QWt"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Enable Location" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="shN-PF-hTa">
@@ -101,8 +101,8 @@
                                     <action selector="segmentChanged:" destination="FvS-l9-O28" eventType="valueChanged" id="f49-Dn-hyq"/>
                                 </connections>
                             </segmentedControl>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="User Full Name" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VXN-Q1-Gg8">
-                                <rect key="frame" x="33" y="290" width="326" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="User Full Name" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VXN-Q1-Gg8">
+                                <rect key="frame" x="33" y="274" width="326" height="55"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" name="Noteworthy-Bold" family="Noteworthy" pointSize="19"/>
                                 <nil key="textColor"/>
@@ -118,6 +118,7 @@
                         <outlet property="contactSwitch" destination="k9a-AK-vkF" id="KgZ-RF-5W8"/>
                         <outlet property="locSwitch" destination="IJb-Jf-BaU" id="XmE-LZ-Fi7"/>
                         <outlet property="nameLabel" destination="VXN-Q1-Gg8" id="dfp-GT-poZ"/>
+                        <outlet property="profileImageView" destination="xTs-gT-Wn3" id="xI7-5p-S4t"/>
                         <outlet property="segmentControl" destination="UQg-Yi-Coc" id="l5M-bj-EvW"/>
                     </connections>
                 </viewController>
