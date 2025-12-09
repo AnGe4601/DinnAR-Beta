@@ -5,7 +5,6 @@
 
 import UIKit
 import Firebase
-import AVFoundation
 import FirebaseStorage
 import FirebaseFirestore
 
@@ -144,14 +143,10 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate {
                 self?.loadData()
                 self?.tableView.reloadData()
             }
-            
-            // Add camera button in restaurant info
-            destVC.onVisitedToggleWithPhoto = { [weak self] in
-                self?.presentCamera(for: restaurant)
             }
         }
     }
-}
+
 
 // MARK: - RecommendationCellDelegate
 extension MainViewController: RecommendationCellDelegate {
@@ -165,8 +160,6 @@ extension MainViewController: RecommendationCellDelegate {
     func didToggleVisited(for restaurant: Restaurant) {
         VisitedManager.shared.toggleVisited(restaurant) { [weak self] _ in
             self?.loadData()
-            // Automatically present camera after marking visited
-            self?.presentCamera(for: restaurant)
         }
     }
     
@@ -184,80 +177,3 @@ extension MainViewController: RecommendationCellDelegate {
     }
 }
 
-// MARK: - Camera Integration
-extension MainViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
-    private func presentCamera(for restaurant: Restaurant) {
-        requestCameraPermission { [weak self] granted in
-            guard let self = self else { return }
-            guard granted else {
-                print("Camera permission not granted")
-                return
-            }
-            
-            guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
-                print("Camera not available")
-                return
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                let picker = UIImagePickerController()
-                picker.sourceType = .camera
-                picker.allowsEditing = true
-                picker.delegate = self
-                picker.modalPresentationStyle = .fullScreen
-                picker.view.tag = restaurant.hashValue // optional to identify later
-                self.present(picker, animated: true)
-            }
-        }
-    }
-    
-    private func requestCameraPermission(_ completion: @escaping (Bool) -> Void) {
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
-        case .authorized: completion(true)
-        case .notDetermined:
-            AVCaptureDevice.requestAccess(for: .video) { granted in
-                DispatchQueue.main.async { completion(granted) }
-            }
-        case .denied, .restricted: completion(false)
-        @unknown default: completion(false)
-        }
-    }
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        picker.dismiss(animated: true)
-        
-        guard let restaurant = visited.first(where: { $0.hashValue == picker.view.tag }) else { return }
-        guard let image = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage else { return }
-        
-        saveVisitPhoto(image, for: restaurant)
-    }
-    
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        picker.dismiss(animated: true)
-    }
-    
-    private func saveVisitPhoto(_ image: UIImage, for restaurant: Restaurant) {
-        guard let data = image.jpegData(compressionQuality: 0.8) else { return }
-        
-        let storageRef = Storage.storage().reference()
-            .child("visitPhotos/\(restaurant.name)_\(UUID().uuidString).jpg")
-        
-        storageRef.putData(data, metadata: nil) { _, error in
-            if let error = error {
-                print("Upload error: \(error)")
-                return
-            }
-            
-            storageRef.downloadURL { url, _ in
-                guard let url = url else { return }
-                print("Image uploaded at:", url.absoluteString)
-                
-                Firestore.firestore()
-                    .collection("restaurants")
-                    .document(restaurant.name)
-                    .setData(["visitPhotoURL": url.absoluteString], merge: true)
-            }
-        }
-    }
-}
