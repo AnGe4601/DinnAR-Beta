@@ -5,9 +5,12 @@
 
 import UIKit
 import Firebase
+import AVFoundation
+import FirebaseStorage
+import FirebaseFirestore
 
 class MainViewController: UIViewController {
-    
+
     var visitedFirestore: Firestore?
     
     @IBOutlet weak var tableView: UITableView!
@@ -15,10 +18,10 @@ class MainViewController: UIViewController {
     
     var favorites: [Restaurant] = []
     var visited: [Restaurant] = []
+    
     // Fake in-memory friends data
     var friendsData: [String: (liked: [String], visited: [String])] = [:]
-
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupSegmentControl()
@@ -32,17 +35,14 @@ class MainViewController: UIViewController {
             print("VisitedApp not configured")
         }
     }
-
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadData()
     }
     
     private func setupTableViewConstraints() {
-        // Disable autoresizing mask
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Add constraints
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: segmentControl.bottomAnchor, constant: 8),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -51,27 +51,20 @@ class MainViewController: UIViewController {
         ])
     }
     
-    private func setupFakeFriends() {
-        // Example friends for testing
-        favorites.forEach { friendsData[$0.name] = (liked: ["Alice", "Bob"], visited: ["Charlie"]) }
-        visited.forEach { friendsData[$0.name] = (liked: ["Dave"], visited: ["Eve", "Frank"]) }
-    }
-
-
     private func setupSegmentControl() {
         segmentControl.selectedSegmentIndex = 1 // Favorites tab
-        segmentControl.selectedSegmentTintColor = UIColor.burntOrange
+        segmentControl.selectedSegmentTintColor = .burntOrange
         segmentControl.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
         segmentControl.setTitleTextAttributes([.foregroundColor: UIColor.gray], for: .normal)
     }
-
+    
     private func setupTableView() {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.rowHeight = 120
-        tableView.tableFooterView = UIView() // remove empty separators
+        tableView.tableFooterView = UIView()
     }
-
+    
     func loadData() {
         VisitedManager.shared.fetchVisited { [weak self] visited in
             self?.visited = visited
@@ -83,77 +76,61 @@ class MainViewController: UIViewController {
             self?.tableView.reloadData()
         }
     }
-
-
+    
     @IBAction func segmentChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0:
             let vc = storyboard?.instantiateViewController(withIdentifier: "HomeViewController") as! HomeViewController
             vc.modalPresentationStyle = .fullScreen
             present(vc, animated: false)
-        case 1:
-            break // Already on Favorites
+        case 1: break
         case 2:
-            let vc = storyboard?.instantiateViewController(withIdentifier: "MapViewController") as!MapViewController
+            let vc = storyboard?.instantiateViewController(withIdentifier: "MapViewController") as! MapViewController
             vc.modalPresentationStyle = .fullScreen
             present(vc, animated: false)
         case 3:
             let vc = storyboard?.instantiateViewController(withIdentifier: "SettingViewController") as! SettingViewController
             vc.modalPresentationStyle = .fullScreen
             present(vc, animated: false)
-        default:
-            break
+        default: break
         }
     }
 }
 
+// MARK: - TableView DataSource & Delegate
 extension MainViewController: UITableViewDataSource, UITableViewDelegate {
     
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
-    }
+    func numberOfSections(in tableView: UITableView) -> Int { 2 }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return (section == 0) ? "Favorites" : "Visited"
+        (section == 0) ? "Favorites" : "Visited"
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
-            return favorites.count
-        } else {
-            return visited.count
-        }
+        (section == 0) ? favorites.count : visited.count
     }
 
-    // MARK: - Cell
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "RecommendationCell", for: indexPath) as? RecommendationCell else {
             fatalError("Cell not found")
         }
-            
-        let restaurant = (indexPath.section == 0)
-            ? favorites[indexPath.row]
-            : visited[indexPath.row]
-
+        
+        let restaurant = (indexPath.section == 0) ? favorites[indexPath.row] : visited[indexPath.row]
         cell.configure(with: restaurant)
         cell.delegate = self
         return cell
     }
-        
-    // MARK: - Selection
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let restaurant: Restaurant?
-        
-        if indexPath.section == 0 {
-            restaurant = (indexPath.row < favorites.count) ? favorites[indexPath.row] : nil
-        } else {
-            restaurant = (indexPath.row < visited.count) ? visited[indexPath.row] : nil
-        }
+        let restaurant = (indexPath.section == 0)
+            ? (indexPath.row < favorites.count ? favorites[indexPath.row] : nil)
+            : (indexPath.row < visited.count ? visited[indexPath.row] : nil)
 
         guard let selectedRestaurant = restaurant else { return }
         performSegue(withIdentifier: "showRestaurantInfo", sender: selectedRestaurant)
     }
-
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showRestaurantInfo",
            let restaurant = sender as? Restaurant,
@@ -161,37 +138,35 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate {
            let destVC = nav.viewControllers.first as? RestaurantInfoViewController {
             
             destVC.restaurant = restaurant
+            destVC.sourceVC = favorites.contains(where: { $0.name == restaurant.name && $0.location == restaurant.location }) ? .favorites : .visited
             
-            // Determine source for onVisitedToggle if needed
-            if favorites.contains(where: { $0.name == restaurant.name && $0.location == restaurant.location }) {
-                destVC.sourceVC = .favorites
-            } else {
-                destVC.sourceVC = .visited
+            destVC.onVisitedToggle = { [weak self] in
+                self?.loadData()
+                self?.tableView.reloadData()
             }
             
-            // Reload data when visited is toggled
-            destVC.onVisitedToggle = { [weak self] in
-                guard let self = self else {return}
-                self.loadData()
-                self.tableView.reloadData()
+            // Add camera button in restaurant info
+            destVC.onVisitedToggleWithPhoto = { [weak self] in
+                self?.presentCamera(for: restaurant)
             }
         }
     }
 }
 
+// MARK: - RecommendationCellDelegate
 extension MainViewController: RecommendationCellDelegate {
     
     func didToggleFavorite(for restaurant: Restaurant) {
-        FavoritesManager.shared.toggleFavorite(restaurant) { [weak self] error in
-            if let error = error { print("Fav error:", error) }
+        FavoritesManager.shared.toggleFavorite(restaurant) { [weak self] _ in
             self?.loadData()
         }
     }
     
     func didToggleVisited(for restaurant: Restaurant) {
-        VisitedManager.shared.toggleVisited(restaurant) { [weak self] error in
-            if let error = error { print("Visited error:", error) }
+        VisitedManager.shared.toggleVisited(restaurant) { [weak self] _ in
             self?.loadData()
+            // Automatically present camera after marking visited
+            self?.presentCamera(for: restaurant)
         }
     }
     
@@ -206,5 +181,83 @@ extension MainViewController: RecommendationCellDelegate {
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
+    }
+}
+
+// MARK: - Camera Integration
+extension MainViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    private func presentCamera(for restaurant: Restaurant) {
+        requestCameraPermission { [weak self] granted in
+            guard let self = self else { return }
+            guard granted else {
+                print("Camera permission not granted")
+                return
+            }
+            
+            guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+                print("Camera not available")
+                return
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                let picker = UIImagePickerController()
+                picker.sourceType = .camera
+                picker.allowsEditing = true
+                picker.delegate = self
+                picker.modalPresentationStyle = .fullScreen
+                picker.view.tag = restaurant.hashValue // optional to identify later
+                self.present(picker, animated: true)
+            }
+        }
+    }
+    
+    private func requestCameraPermission(_ completion: @escaping (Bool) -> Void) {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized: completion(true)
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async { completion(granted) }
+            }
+        case .denied, .restricted: completion(false)
+        @unknown default: completion(false)
+        }
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true)
+        
+        guard let restaurant = visited.first(where: { $0.hashValue == picker.view.tag }) else { return }
+        guard let image = info[.editedImage] as? UIImage ?? info[.originalImage] as? UIImage else { return }
+        
+        saveVisitPhoto(image, for: restaurant)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
+    }
+    
+    private func saveVisitPhoto(_ image: UIImage, for restaurant: Restaurant) {
+        guard let data = image.jpegData(compressionQuality: 0.8) else { return }
+        
+        let storageRef = Storage.storage().reference()
+            .child("visitPhotos/\(restaurant.name)_\(UUID().uuidString).jpg")
+        
+        storageRef.putData(data, metadata: nil) { _, error in
+            if let error = error {
+                print("Upload error: \(error)")
+                return
+            }
+            
+            storageRef.downloadURL { url, _ in
+                guard let url = url else { return }
+                print("Image uploaded at:", url.absoluteString)
+                
+                Firestore.firestore()
+                    .collection("restaurants")
+                    .document(restaurant.name)
+                    .setData(["visitPhotoURL": url.absoluteString], merge: true)
+            }
+        }
     }
 }
